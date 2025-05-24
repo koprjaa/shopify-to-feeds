@@ -1,0 +1,96 @@
+2024-11-13 15:26:59 - INFO - Created output folder: shopify_exports/pikastore_export_20241113_152659
+2024-11-13 15:26:59 - INFO - Created images folder: shopify_exports/pikastore_export_20241113_152659/images
+2024-11-13 15:26:59 - INFO - Extracting products...
+2024-11-13 15:26:59 - INFO - Extracting products from collection: adidas
+2024-11-13 15:27:00 - INFO - Extracted 201 products from collection 'adidas'
+2024-11-13 15:27:00 - INFO - Extracted 340 products from collection 'adidas'
+2024-11-13 15:27:00 - INFO - Extracted 494 products from collection 'adidas'
+2024-11-13 15:27:00 - INFO - Extracted 754 products from collection 'adidas'
+2024-11-13 15:27:01 - INFO - Extracted 1064 products from collection 'adidas'
+2024-11-13 15:27:01 - INFO - Extracted 1393 products from collection 'adidas'
+2024-11-13 15:27:02 - INFO - Extracted 1706 products from collection 'adidas'
+2024-11-13 15:27:02 - INFO - Extracted 2058 products from collection 'adidas'
+2024-11-13 15:27:02 - INFO - Extracted 2075 products from collection 'adidas'
+2024-11-13 15:27:02 - INFO - Extracting products from collection: adidas-tenisky
+2024-11-13 15:27:03 - INFO - Extracted 428 products from collection 'adidas-tenisky'
+2024-11-13 15:27:03 - INFO - Extracted 492 products from collection 'adidas-tenisky'
+2024-11-13 15:27:03 - INFO - Extracted 612 products from collection 'adidas-tenisky'
+2024-11-13 15:27:03 - INFO - Extracted 748 products from collection 'adidas-tenisky'
+2024-11-13 15:27:03 - INFO - Extracted 984 products from collection 'adidas-tenisky'
+2024-11-13 15:27:04 - INFO - Extracted 1324 products from collection 'adidas-tenisky'
+2024-11-13 15:27:04 - INFO - Extracted 1614 products from collection 'adidas-tenisky'
+2024-11-13 15:27:04 - INFO - Extracted 1973 products from collection 'adidas-tenisky'
+2024-11-13 15:27:04 - INFO - Extracted 2288 products from collection 'adidas-tenisky'
+2024-11-13 15:27:04 - INFO - Extracted 2651 products from collection 'adidas-tenisky'
+2024-11-13 15:27:05 - INFO - Extracted 2753 products from collection 'adidas-tenisky'
+2024-11-13 15:27:05 - INFO - Extracting products from collection: adidas-adilette
+2024-11-13 15:27:05 - INFO - Extracted 6 products from collection 'adidas-adilette'
+2024-11-13 15:27:05 - INFO - Extracting products from collection: adidas-campus
+2024-11-13 15:27:05 - INFO - Extracted 256 products from collection 'adidas-campus'
+2024-11-13 15:27:05 - INFO - Extracted 624 products from collection 'adidas-campus'
+2024-11-13 15:27:06 - INFO - Extracted 711 products from collection 'adidas-campus'
+2024-11-13 15:27:06 - INFO - Extracting products from collection: adidas-forum
+2024-11-13 15:27:06 - INFO - Extracted 48 products from collection 'adidas-forum'
+2024-11-13 15:27:06 - INFO - Extracting products from collection: adidas-gazelle
+2024-11-13 15:27:06 - INFO - Extracted 191 products from collection 'adidas-gazelle'
+2024-11-13 15:27:06 - INFO - Extracted 351 products from collection 'adidas-gazelle'
+2024-11-13 15:27:06 - INFO - Extracting products from collection: adidas-ostatni
+2024-11-13 15:27:07 - INFO - Extracted 92 products from collection 'adidas-ostatni'
+2024-11-13 15:27:07 - INFO - Extracted 357 products from collection 'adidas-ostatni'
+2024-11-13 15:27:07 - INFO - Extracted 673 products from collection 'adidas-ostatni'
+2024-11-13 15:27:07 - INFO - Extracted 756 products from collection 'adidas-ostatni'
+2024-11-13 15:27:07 - INFO - Extracting products from collection: adidas-samba
+2024-11-13 15:27:07 - INFO - Extracted 303 products from collection 'adidas-samba'
+2024-11-13 15:27:08 - INFO - Extracted 497 products from collection 'adidas-samba'
+2024-11-13 15:27:08 - INFO - Extracting products from collection: adidas-spezial-sneakers-tenisky
+2024-11-13 15:27:08 - INFO - Extracted 333 products from collection 'adidas-spezial-sneakers-tenisky'
+2024-11-13 15:27:08 - INFO - Extracted 407 products from collection 'adidas-spezial-sneakers-tenisky'
+2024-11-13 15:27:08 - INFO - Extracting products from collection: adidas-yeezy-350
+2024-11-13 15:27:08 - INFO - Extracted 213 products from collection 'adidas-yeezy-350'
+2024-11-13 15:27:08 - INFO - Extracting products from collection: adidas-yeezy-500
+2024-11-13 15:27:09 - INFO - Extracted 44 products from collection 'adidas-yeezy-500'
+2024-11-13 15:27:09 - INFO - Extracting products from collection: adidas-yeezy-700
+2024-11-13 15:27:09 - INFO - Extracted 91 products from collection 'adidas-yeezy-700'
+2024-11-13 15:27:09 - INFO - Extracting products from collection: adidas-yeezy-foam-runner
+2024-11-13 15:27:09 - INFO - Extracted 114 products from collection 'adidas-yeezy-foam-runner'
+2024-11-13 15:27:09 - INFO - Extracting products from collection: adidas-yeezy-slide
+2024-11-13 15:27:09 - INFO - Extracted 201 products from collection 'adidas-yeezy-slide'
+2024-11-13 15:27:10 - INFO - Extracting products from collection: nike-air-jordan-3
+2024-11-13 15:27:10 - INFO - Extracted 201 products from collection 'nike-air-jordan-3'
+2024-11-13 15:27:10 - INFO - Extracting products from collection: asics
+2024-11-13 15:27:10 - INFO - Extracted 83 products from collection 'asics'
+2024-11-13 15:27:10 - INFO - Extracting products from collection: back-to-school
+2024-11-13 15:27:10 - INFO - Extracted 308 products from collection 'back-to-school'
+2024-11-13 15:27:11 - INFO - Extracted 566 products from collection 'back-to-school'
+2024-11-13 15:27:11 - INFO - Extracted 784 products from collection 'back-to-school'
+2024-11-13 15:27:11 - INFO - Extracting products from collection: batohy-a-tasky
+2024-11-13 15:27:11 - INFO - Extracted 6 products from collection 'batohy-a-tasky'
+2024-11-13 15:27:11 - INFO - Extracting products from collection: black-friday
+2024-11-13 15:27:11 - INFO - Extracting products from collection: broken-planet
+2024-11-13 15:27:12 - INFO - Extracted 29 products from collection 'broken-planet'
+2024-11-13 15:27:12 - INFO - Extracting products from collection: bryle-a-hodinky
+2024-11-13 15:27:12 - INFO - Extracting products from collection: bundy
+2024-11-13 15:27:12 - INFO - Extracted 22 products from collection 'bundy'
+2024-11-13 15:27:12 - INFO - Extracting products from collection: chains
+2024-11-13 15:27:12 - INFO - Extracted 4 products from collection 'chains'
+2024-11-13 15:27:13 - INFO - Extracting products from collection: comme-des-garcons
+2024-11-13 15:27:13 - INFO - Extracting products from collection: converse-tenisky
+2024-11-13 15:27:13 - INFO - Extracted 100 products from collection 'converse-tenisky'
+2024-11-13 15:27:13 - INFO - Extracting products from collection: corteiz
+2024-11-13 15:27:13 - INFO - Extracted 39 products from collection 'corteiz'
+2024-11-13 15:27:13 - INFO - Extracting products from collection: crewnecks
+2024-11-13 15:27:13 - INFO - Extracted 7 products from collection 'crewnecks'
+2024-11-13 15:27:14 - INFO - Extracting products from collection: crocs-pantofle
+2024-11-13 15:27:14 - INFO - Extracted 57 products from collection 'crocs-pantofle'
+2024-11-13 15:27:14 - INFO - Extracting products from collection: custom-pants-prague
+2024-11-13 15:27:14 - INFO - Extracted 203 products from collection 'custom-pants-prague'
+2024-11-13 15:27:14 - INFO - Extracted 251 products from collection 'custom-pants-prague'
+2024-11-13 15:27:15 - INFO - Extracting products from collection: cepice
+2024-11-13 15:27:15 - INFO - Extracting products from collection: do-10000czk
+2024-11-13 15:27:15 - INFO - Extracted 210 products from collection 'do-10000czk'
+2024-11-13 15:27:15 - INFO - Extracted 404 products from collection 'do-10000czk'
+2024-11-13 15:27:16 - INFO - Extracted 617 products from collection 'do-10000czk'
+2024-11-13 15:27:16 - INFO - Extracted 861 products from collection 'do-10000czk'
+2024-11-13 15:27:16 - INFO - Extracted 1148 products from collection 'do-10000czk'
+2024-11-13 15:27:16 - INFO - Extracted 1314 products from collection 'do-10000czk'
+2024-11-13 15:27:17 - INFO - Extracted 1563 products from collection 'do-10000czk'
