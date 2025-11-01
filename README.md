@@ -1,60 +1,77 @@
-# Shopify Product Scraper
+# Listnato Shopify Feeds Generator
 
-A robust Python tool for extracting product data from Shopify stores. Efficiently fetches product information, images, and metadata, saving them in structured CSV format.
+FastAPI aplikace pro generování XML feedů z Shopify obchodů pro různé e-commerce platformy.
 
-## Features
+## Popis
 
-- Comprehensive product data extraction
-- High-quality image downloads
-- Structured CSV output
-- Collection-specific scraping
-- Configurable retry mechanism
-- Progress tracking
-- Detailed logging
-- Error handling
-- Concurrent processing
+Tento projekt generuje produktové feedy ve formátu XML pro:
+- **Google Merchant Center** (GMC)
+- **Bing Shopping**
+- **Zbozi.cz**
 
-## Quick Start
+Aplikace poskytuje REST API endpointy pro automatické generování a aktualizaci feedů z Shopify obchodů.
+
+## Funkce
+
+- 🔄 Automatické generování XML feedů z Shopify obchodů
+- 📦 Podpora pro Google Merchant Center, Bing Shopping a Zbozi.cz
+- 🖼️ Stahování produktových obrázků
+- 🔁 Background processing feedů
+- 📊 Status tracking generovaných feedů
+- 🚀 REST API pro integraci
+- 📁 Statické soubory feedů dostupné přes HTTP
+
+## Instalace
 
 ```sh
-# Clone repository
-git clone https://github.com/koprjaa/shopify_scraper.git
-cd shopify_scraper
-
-# Install dependencies
+# Nainstalovat závislosti
 pip install -r requirements.txt
-
-# Run scraper
-python shopify_scraper.py <shopify_store_url> [options]
 ```
 
-## Usage
-
-### Command-line Arguments
-
-| Argument | Description | Default |
-|----------|-------------|---------|
-| `url` | Shopify store URL | Required |
-| `-c, --collections` | Collection handles | None |
-| `-o, --output-folder` | Output path | `shopify_exports` |
-| `-f, --csv-filename` | CSV filename | `shopify_products.csv` |
-| `-l, --log-filename` | Log filename | `shopify_scraper.log` |
-| `-r, --max-retries` | Max retries | 3 |
-| `-d, --retry-delay` | Retry delay (s) | 180 |
-| `-v, --verbosity` | Log level (1-3) | 2 |
-
-### Examples
+## Spuštění
 
 ```sh
-# Basic usage
-python shopify_scraper.py https://example.myshopify.com
+# Spustit API server
+python api.py
 
-# Specific collections
-python shopify_scraper.py https://example.myshopify.com -c collection1 collection2
-
-# Custom output
-python shopify_scraper.py https://example.myshopify.com -o custom_folder -f products.csv
-
-# Debug mode
-python shopify_scraper.py https://example.myshopify.com -v 3 -r 5 -d 300
+# Nebo pomocí uvicorn
+uvicorn api:app --host 0.0.0.0 --port 8000
 ```
+
+## API Endpointy
+
+### Spustit aktualizaci feedu
+```
+POST /feed/update/{store_url}?feed_type=google&download_images=true
+```
+
+### Zkontrolovat stav feedu
+```
+GET /feed/status/{store_url}
+```
+
+### Stáhnout feed soubor
+```
+GET /feeds/{filename}
+```
+
+## Použití
+
+### Generování Google Merchant Center feedu
+```bash
+curl -X POST "http://localhost:8000/feed/update/https://example.myshopify.com?feed_type=google&download_images=true"
+```
+
+### Generování Bing Shopping feedu
+```bash
+curl -X POST "http://localhost:8000/feed/update/https://example.myshopify.com?feed_type=bing"
+```
+
+### Generování Zbozi.cz feedu
+```bash
+curl -X POST "http://localhost:8000/feed/update/https://example.myshopify.com?feed_type=zbozi"
+```
+
+## Konfigurace
+
+Aplikace používá konfigurační soubory pro nginx (`listnato.conf`) a uwsgi (`uwsgi.ini`).

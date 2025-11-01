@@ -1,0 +1,16 @@
+[Unit]
+Description=Shopify Feed API Service for listnato.cz
+After=network.target
+
+[Service]
+User=www-data
+Group=www-data
+WorkingDirectory=/var/www/listnato
+Environment="DOMAIN=listnato.cz"
+ExecStart=/usr/local/bin/uwsgi --ini uwsgi.ini
+Restart=always
+StandardOutput=append:/var/log/listnato/api.log
+StandardError=append:/var/log/listnato/api.error.log
+
+[Install]
+WantedBy=multi-user.target 
