@@ -1,0 +1,7 @@
+include README.md
+include LICENSE
+include requirements.txt
+recursive-include shopify_to_feeds *.py
+recursive-exclude * __pycache__
+recursive-exclude * *.py[co]
+

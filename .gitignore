@@ -42,4 +42,16 @@ Thumbs.db
 
 # Project specific
 shopify_exports/
-*.log 
+google_feed_exports/
+bing_feed_exports/
+zbozi_feed_exports/
+*.log
+
+# Generated feeds
+static/feeds/*.xml
+!static/feeds/.gitkeep
+
+# Build artifacts
+*.egg-info/
+build/
+dist/ 
