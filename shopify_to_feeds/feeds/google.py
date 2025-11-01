@@ -105,7 +105,10 @@ class GoogleFeedGenerator(BaseFeedGenerator):
                     "price": format_price(variant_price, self.currency),
                     "brand": product.get("vendor", ""),
                     "condition": "new",
-                    "google_product_category": product_tags if product_tags else "Home & Garden",
+                    "google_product_category": (
+                        ", ".join(product_tags) if isinstance(product_tags, list)
+                        else (str(product_tags) if product_tags else "Home & Garden")
+                    ),
                 }
 
                 # Add optional fields
@@ -204,26 +207,30 @@ class GoogleFeedGenerator(BaseFeedGenerator):
                 # Required fields
                 g_ns = "{http://base.google.com/ns/1.0}"
                 ET.SubElement(item, f"{g_ns}id").text = str(variant["id"])
-                ET.SubElement(item, f"{g_ns}title").text = variant["title"]
-                ET.SubElement(item, f"{g_ns}description").text = variant["description"]
-                ET.SubElement(item, f"{g_ns}link").text = variant["link"]
-                ET.SubElement(item, f"{g_ns}image_link").text = variant["image_link"]
-                ET.SubElement(item, f"{g_ns}availability").text = variant["availability"]
-                ET.SubElement(item, f"{g_ns}price").text = variant["price"]
-                ET.SubElement(item, f"{g_ns}brand").text = variant["brand"]
-                ET.SubElement(item, f"{g_ns}condition").text = variant["condition"]
-                ET.SubElement(item, f"{g_ns}google_product_category").text = variant["google_product_category"]
+                ET.SubElement(item, f"{g_ns}title").text = str(variant["title"])
+                ET.SubElement(item, f"{g_ns}description").text = str(variant["description"])
+                ET.SubElement(item, f"{g_ns}link").text = str(variant["link"])
+                ET.SubElement(item, f"{g_ns}image_link").text = str(variant["image_link"])
+                ET.SubElement(item, f"{g_ns}availability").text = str(variant["availability"])
+                ET.SubElement(item, f"{g_ns}price").text = str(variant["price"])
+                ET.SubElement(item, f"{g_ns}brand").text = str(variant["brand"])
+                ET.SubElement(item, f"{g_ns}condition").text = str(variant["condition"])
+                ET.SubElement(item, f"{g_ns}google_product_category").text = str(variant["google_product_category"])
 
                 # Optional fields
-                if "gtin" in variant:
-                    ET.SubElement(item, f"{g_ns}gtin").text = variant["gtin"]
-                if "mpn" in variant:
-                    ET.SubElement(item, f"{g_ns}mpn").text = variant["mpn"]
-                if "product_type" in variant:
-                    ET.SubElement(item, f"{g_ns}product_type").text = variant["product_type"]
+                if "gtin" in variant and variant["gtin"]:
+                    ET.SubElement(item, f"{g_ns}gtin").text = str(variant["gtin"])
+                if "mpn" in variant and variant["mpn"]:
+                    ET.SubElement(item, f"{g_ns}mpn").text = str(variant["mpn"])
+                if "product_type" in variant and variant["product_type"]:
+                    ET.SubElement(item, f"{g_ns}product_type").text = str(variant["product_type"])
                 if "additional_image_link" in variant:
-                    for img_url in variant["additional_image_link"]:
-                        ET.SubElement(item, f"{g_ns}additional_image_link").text = img_url
+                    if isinstance(variant["additional_image_link"], list):
+                        for img_url in variant["additional_image_link"]:
+                            if img_url:
+                                ET.SubElement(item, f"{g_ns}additional_image_link").text = str(img_url)
+                    elif variant["additional_image_link"]:
+                        ET.SubElement(item, f"{g_ns}additional_image_link").text = str(variant["additional_image_link"])
 
             # Save XML file
             os.makedirs(os.path.dirname(output_path), exist_ok=True)

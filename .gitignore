@@ -51,6 +51,9 @@ zbozi_feed_exports/
 static/feeds/*.xml
 !static/feeds/.gitkeep
 
+# Test feeds
+test_feeds/*.xml
+
 # Build artifacts
 *.egg-info/
 build/
