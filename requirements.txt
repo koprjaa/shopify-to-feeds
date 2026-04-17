@@ -1,6 +1,6 @@
 fastapi==0.104.1
 uvicorn==0.24.0
-uwsgi==2.0.23
+uwsgi==2.0.23; sys_platform != "win32"
 requests==2.31.0
 beautifulsoup4==4.12.2
 lxml==4.9.3
