@@ -1,62 +1,57 @@
-# Shopify to Feeds
+# shopify-to-feeds
 
-Generuje produktové XML feedy z Shopify obchodů pro Google Merchant Center, Bing Shopping a Zbozi.cz. Nástroj automaticky stahuje produkty z Shopify API a vytváří validní XML soubory připravené k nahrání do e-commerce platforem.
+**Generates Google Merchant Center / Bing Shopping / Zboží.cz XML product feeds from any Shopify store — usable as a Python library or a FastAPI microservice.**
 
-## Popis
+![python](https://img.shields.io/badge/python-3.10+-3776AB?style=flat-square&logo=python&logoColor=white)
+![license](https://img.shields.io/badge/license-MIT-A31F34?style=flat-square)
+![status](https://img.shields.io/badge/status-active-22863A?style=flat-square)
+![fastapi](https://img.shields.io/badge/FastAPI-0.104-009688?style=flat-square&logo=fastapi&logoColor=white)
+![pydantic](https://img.shields.io/badge/pydantic-2.5-E92063?style=flat-square&logo=pydantic&logoColor=white)
+![lxml](https://img.shields.io/badge/lxml-4.9-555?style=flat-square)
 
-Shopify to Feeds je Python balíček pro generování produktových feedů ve formátu XML. Podporuje tři hlavní platformy: Google Merchant Center, Bing Shopping a Zbozi.cz. Aplikace poskytuje jak Python API pro přímé použití v kódu, tak REST API server pro vzdálené generování feedů.
+Shopify's native feed exports only support Google Merchant Center and charge for the rest. This does all three for free, against any Shopify store's public `/products.json` endpoint.
 
-## Instalace
+## Three feeds, one codebase
 
-```bash
-pip install -r requirements.txt
+```
+shopify_to_feeds/
+├── feeds/
+│   ├── base.py       # abstract FeedGenerator
+│   ├── google.py     # Google Merchant Center XML
+│   ├── bing.py       # Bing Shopping XML
+│   └── zbozi.py      # Zboží.cz XML (Czech comparison shopping)
+└── api.py            # FastAPI server with background tasks
 ```
 
-Nebo jako balíček:
+Each generator subclasses `FeedGenerator`, overrides the field-mapping methods, and inherits pagination, retry, and image handling for free.
 
-```bash
-pip install -e .
-```
-
-## Použití
-
-### Python API
+## As a library
 
 ```python
-from shopify_to_feeds.feeds import GoogleFeedGenerator, BingFeedGenerator, ZboziFeedGenerator
+from shopify_to_feeds.feeds import (
+    GoogleFeedGenerator,
+    BingFeedGenerator,
+    ZboziFeedGenerator,
+)
 
-# Google Merchant Center
-generator = GoogleFeedGenerator("https://example.myshopify.com")
-generator.generate("google_feed.xml")
-
-# Bing Shopping
-generator = BingFeedGenerator("https://example.myshopify.com")
-generator.generate("bing_feed.xml")
-
-# Zbozi.cz
-generator = ZboziFeedGenerator("https://example.myshopify.com")
-generator.generate("zbozi_feed.xml")
+GoogleFeedGenerator("https://example.myshopify.com").generate("google_feed.xml")
+BingFeedGenerator("https://example.myshopify.com").generate("bing_feed.xml")
+ZboziFeedGenerator("https://example.myshopify.com").generate("zbozi_feed.xml")
 ```
 
-### REST API Server
+## As a service
 
 ```bash
-python -m shopify_to_feeds.api
-```
-
-Nebo pomocí uvicorn:
-
-```bash
+uv venv
+uv pip install -r requirements.txt
 uvicorn shopify_to_feeds.api:app --host 0.0.0.0 --port 8000
 ```
 
-Generování feedu přes API:
+Fire-and-forget feed generation (background task, caches to `static/feeds/`):
 
 ```bash
 curl -X POST "http://localhost:8000/feed/update/https://example.myshopify.com?feed_type=google"
 ```
-
-Odpověď:
 
 ```json
 {
@@ -67,7 +62,21 @@ Odpověď:
 }
 ```
 
-## Licence
+The short hash in the filename is a hash of the store URL, so calling the endpoint repeatedly for the same store overwrites the same cached file — point Google Merchant Center at that stable URL and it always gets the latest export.
 
-MIT License - viz [LICENSE](LICENSE) soubor.
+## Supported feed formats
 
+| feed | platform | key fields |
+|------|----------|-----------|
+| `google` | Google Merchant Center | `g:id`, `g:price`, `g:availability`, `g:condition`, `g:brand`, `g:shipping` |
+| `bing` | Bing Shopping | same field model as Google with namespace tweaks |
+| `zbozi` | Zboží.cz | `SHOP`, `SHOPITEM` schema with `ITEM_TYPE`, `DELIVERY_DATE` |
+
+## Known limits
+
+- No OAuth — we hit the public `/products.json` endpoint, so metafields and private fields aren't available. For those, plug in Shopify Admin API with an access token.
+- `uwsgi` is listed in `requirements.txt` (Linux-only) for production deployment. On Windows / macOS dev, the marker `; sys_platform != "win32"` skips it automatically.
+
+## License
+
+[MIT](LICENSE)
