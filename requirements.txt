@@ -1,20 +1,8 @@
-fastapi==0.104.1
-uvicorn==0.24.0
-uwsgi==2.0.23; sys_platform != "win32"
-requests==2.31.0
-beautifulsoup4==4.12.2
-lxml==4.9.3
-python-dotenv==1.0.0
-aiohttp==3.9.1
-pydantic==2.5.2
-pandas==2.2.1
-tqdm==4.66.2
-urllib3==2.2.1
-certifi==2024.2.2
-charset-normalizer==3.3.2
-idna==3.6
-numpy==1.26.4
-python-dateutil==2.8.2
-pytz==2024.1
-six==1.16.0
-tzdata==2024.1
+# Runtime
+requests>=2.32.4
+fastapi>=0.115
+pydantic>=2.10
+uvicorn[standard]>=0.30
+
+# Production server on Linux. Skipped elsewhere, it needs a C toolchain.
+uwsgi>=2.0; sys_platform != "win32"
