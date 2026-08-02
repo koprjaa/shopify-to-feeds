@@ -1,31 +1,23 @@
 # shopify-to-feeds
 
-**Generates Google Merchant Center / Bing Shopping / Zboží.cz XML product feeds from any Shopify store — usable as a Python library or a FastAPI microservice.**
+Generates Google Merchant Center, Bing Shopping, and Zboží.cz product feeds from any Shopify store. It works as a Python library and as a FastAPI service.
 
 ![python](https://img.shields.io/badge/python-3.10+-3776AB?style=flat-square&logo=python&logoColor=white)
 ![license](https://img.shields.io/badge/license-MIT-A31F34?style=flat-square)
 ![status](https://img.shields.io/badge/status-active-22863A?style=flat-square)
-![fastapi](https://img.shields.io/badge/FastAPI-0.104-009688?style=flat-square&logo=fastapi&logoColor=white)
-![pydantic](https://img.shields.io/badge/pydantic-2.5-E92063?style=flat-square&logo=pydantic&logoColor=white)
-![lxml](https://img.shields.io/badge/lxml-4.9-555?style=flat-square)
 
-Shopify's native feed exports only support Google Merchant Center and charge for the rest. This does all three for free, against any Shopify store's public `/products.json` endpoint.
+The native Shopify export covers Google Merchant Center and charges for the other formats. This tool produces all three from the public `/products.json` endpoint.
 
-## Three feeds, one codebase
+## Install
 
-```
-shopify_to_feeds/
-├── feeds/
-│   ├── base.py       # abstract FeedGenerator
-│   ├── google.py     # Google Merchant Center XML
-│   ├── bing.py       # Bing Shopping XML
-│   └── zbozi.py      # Zboží.cz XML (Czech comparison shopping)
-└── api.py            # FastAPI server with background tasks
+```bash
+uv venv
+uv pip install -r requirements.txt
 ```
 
-Each generator subclasses `FeedGenerator`, overrides the field-mapping methods, and inherits pagination, retry, and image handling for free.
+## Use
 
-## As a library
+As a library:
 
 ```python
 from shopify_to_feeds.feeds import (
@@ -39,15 +31,13 @@ BingFeedGenerator("https://example.myshopify.com").generate("bing_feed.xml")
 ZboziFeedGenerator("https://example.myshopify.com").generate("zbozi_feed.xml")
 ```
 
-## As a service
+As a service:
 
 ```bash
-uv venv
-uv pip install -r requirements.txt
 uvicorn shopify_to_feeds.api:app --host 0.0.0.0 --port 8000
 ```
 
-Fire-and-forget feed generation (background task, caches to `static/feeds/`):
+The update endpoint starts a background task and caches the result under `static/feeds/`:
 
 ```bash
 curl -X POST "http://localhost:8000/feed/update/https://example.myshopify.com?feed_type=google"
@@ -62,20 +52,35 @@ curl -X POST "http://localhost:8000/feed/update/https://example.myshopify.com?fe
 }
 ```
 
-The short hash in the filename is a hash of the store URL, so calling the endpoint repeatedly for the same store overwrites the same cached file — point Google Merchant Center at that stable URL and it always gets the latest export.
+The hash in the filename comes from the store URL. Repeated calls for the same store overwrite the same file. Point Google Merchant Center at that stable URL and it always reads the current export.
 
-## Supported feed formats
+## Feed formats
 
-| feed | platform | key fields |
-|------|----------|-----------|
+| Feed | Platform | Main fields |
+|---|---|---|
 | `google` | Google Merchant Center | `g:id`, `g:price`, `g:availability`, `g:condition`, `g:brand`, `g:shipping` |
-| `bing` | Bing Shopping | same field model as Google with namespace tweaks |
-| `zbozi` | Zboží.cz | `SHOP`, `SHOPITEM` schema with `ITEM_TYPE`, `DELIVERY_DATE` |
+| `bing` | Bing Shopping | Same field model as Google, with different namespaces. |
+| `zbozi` | Zboží.cz | `SHOP` and `SHOPITEM` schema with `ITEM_TYPE` and `DELIVERY_DATE`. |
 
-## Known limits
+## How it works
 
-- No OAuth — we hit the public `/products.json` endpoint, so metafields and private fields aren't available. For those, plug in Shopify Admin API with an access token.
-- `uwsgi` is listed in `requirements.txt` (Linux-only) for production deployment. On Windows / macOS dev, the marker `; sys_platform != "win32"` skips it automatically.
+```
+shopify_to_feeds/
+  feeds/base.py     Abstract FeedGenerator
+  feeds/google.py   Google Merchant Center XML
+  feeds/bing.py     Bing Shopping XML
+  feeds/zbozi.py    Zboží.cz XML
+  api.py            FastAPI server with background tasks
+```
+
+Each generator subclasses `FeedGenerator` and overrides the field mapping. Pagination, retry, and image handling come from the base class.
+
+## Limits
+
+- There is no OAuth step, so the public endpoint exposes no metafields and no private fields. Those need the Shopify Admin API with an access token.
+- `requirements.txt` lists `uwsgi` for production on Linux. The marker `; sys_platform != "win32"` skips it on Windows and macOS.
+- The repository history contains a large export of scraped product images from three real stores. Clone with `--depth 1` if you only want the code.
+- `test_feeds.py` is a script, not a test suite.
 
 ## License
 
