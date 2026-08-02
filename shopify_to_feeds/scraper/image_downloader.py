@@ -1,3 +1,17 @@
+#
+# Project: shopify-to-feeds
+# File:    image_downloader.py
+#
+# Description:
+# Downloads product images and stores them next to the generated feed.
+#
+# Author:
+# Jan Alexandr Kopřiva
+# jan.alexandr.kopriva@gmail.com
+#
+# License: MIT
+#
+
 """
 Image downloader for product images.
 """

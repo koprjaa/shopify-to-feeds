@@ -1,4 +1,18 @@
 #!/usr/bin/env python3
+#
+# Project: shopify-to-feeds
+# File:    test_feeds.py
+#
+# Description:
+# Manual end to end script that builds all three feeds against a live store.
+#
+# Author:
+# Jan Alexandr Kopřiva
+# jan.alexandr.kopriva@gmail.com
+#
+# License: MIT
+#
+
 """
 Test script for generating all feeds for listnato.cz
 """
@@ -19,7 +33,6 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Store URL - zkusíme různé varianty
 STORE_URLS = [
     "https://listnato.cz",
     "https://listnato.myshopify.com",
@@ -50,7 +63,6 @@ def find_valid_store_url() -> str:
             logger.info(f"✓ Found valid store URL: {url}")
             return url
 
-    # Pokud žádná nefunguje, použijeme první jako fallback
     logger.warning(f"No valid URL found, using first: {STORE_URLS[0]}")
     return STORE_URLS[0]
 

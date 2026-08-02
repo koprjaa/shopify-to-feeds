@@ -1,3 +1,17 @@
+#
+# Project: shopify-to-feeds
+# File:    zbozi.py
+#
+# Description:
+# Builds a Zbozi.cz product feed.
+#
+# Author:
+# Jan Alexandr Kopřiva
+# jan.alexandr.kopriva@gmail.com
+#
+# License: MIT
+#
+
 """
 Zbozi.cz feed generator.
 """

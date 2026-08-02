@@ -1,3 +1,17 @@
+#
+# Project: shopify-to-feeds
+# File:    __init__.py
+#
+# Description:
+# Exposes the Shopify client and the image downloader.
+#
+# Author:
+# Jan Alexandr Kopřiva
+# jan.alexandr.kopriva@gmail.com
+#
+# License: MIT
+#
+
 """
 Shopify scraper module for fetching products and collections.
 """

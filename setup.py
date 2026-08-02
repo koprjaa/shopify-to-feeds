@@ -1,3 +1,17 @@
+#
+# Project: shopify-to-feeds
+# File:    setup.py
+#
+# Description:
+# Packaging metadata for installing shopify-to-feeds.
+#
+# Author:
+# Jan Alexandr Kopřiva
+# jan.alexandr.kopriva@gmail.com
+#
+# License: MIT
+#
+
 """
 Setup script for shopify-to-feeds package.
 """

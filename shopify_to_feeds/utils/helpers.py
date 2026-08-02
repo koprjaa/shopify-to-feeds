@@ -1,3 +1,17 @@
+#
+# Project: shopify-to-feeds
+# File:    helpers.py
+#
+# Description:
+# Formats prices, weights, and descriptions the way the merchant centres accept them.
+#
+# Author:
+# Jan Alexandr Kopřiva
+# jan.alexandr.kopriva@gmail.com
+#
+# License: MIT
+#
+
 """
 Helper utility functions.
 """

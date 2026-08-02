@@ -1,3 +1,17 @@
+#
+# Project: shopify-to-feeds
+# File:    api.py
+#
+# Description:
+# FastAPI service that triggers feed generation and serves the generated files.
+#
+# Author:
+# Jan Alexandr Kopřiva
+# jan.alexandr.kopriva@gmail.com
+#
+# License: MIT
+#
+
 """
 FastAPI application for generating Shopify product feeds.
 """

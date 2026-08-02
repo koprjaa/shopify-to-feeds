@@ -1,3 +1,17 @@
+#
+# Project: shopify-to-feeds
+# File:    shopify_client.py
+#
+# Description:
+# Reads products and collections from a Shopify store over its public JSON endpoints.
+#
+# Author:
+# Jan Alexandr Kopřiva
+# jan.alexandr.kopriva@gmail.com
+#
+# License: MIT
+#
+
 """
 Shopify API client for fetching products and collections.
 """

@@ -1,3 +1,17 @@
+#
+# Project: shopify-to-feeds
+# File:    test_helpers.py
+#
+# Description:
+# Tests for the value formatting every feed generator shares.
+#
+# Author:
+# Jan Alexandr Kopřiva
+# jan.alexandr.kopriva@gmail.com
+#
+# License: MIT
+#
+
 """Tests for the value formatting every feed generator shares.
 
 A wrong value here reaches Google Merchant Center, Bing and Zbozi.cz alike, and

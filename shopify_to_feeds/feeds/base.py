@@ -1,3 +1,17 @@
+#
+# Project: shopify-to-feeds
+# File:    base.py
+#
+# Description:
+# Shared base for the feed generators: output paths and the XML writing step.
+#
+# Author:
+# Jan Alexandr Kopřiva
+# jan.alexandr.kopriva@gmail.com
+#
+# License: MIT
+#
+
 """
 Base class for feed generators.
 """

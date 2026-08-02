@@ -1,3 +1,17 @@
+#
+# Project: shopify-to-feeds
+# File:    google.py
+#
+# Description:
+# Builds a Google Merchant Center product feed.
+#
+# Author:
+# Jan Alexandr Kopřiva
+# jan.alexandr.kopriva@gmail.com
+#
+# License: MIT
+#
+
 """
 Google Merchant Center feed generator.
 """

@@ -1,3 +1,17 @@
+#
+# Project: shopify-to-feeds
+# File:    __init__.py
+#
+# Description:
+# Exposes the Google, Bing, and Zbozi.cz feed generators.
+#
+# Author:
+# Jan Alexandr Kopřiva
+# jan.alexandr.kopriva@gmail.com
+#
+# License: MIT
+#
+
 """
 Feed generators for various e-commerce platforms.
 """

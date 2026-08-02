@@ -1,3 +1,17 @@
+#
+# Project: shopify-to-feeds
+# File:    bing.py
+#
+# Description:
+# Builds a Bing Shopping product feed.
+#
+# Author:
+# Jan Alexandr Kopřiva
+# jan.alexandr.kopriva@gmail.com
+#
+# License: MIT
+#
+
 """
 Bing Shopping feed generator.
 """
