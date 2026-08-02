@@ -1,8 +1,8 @@
 # Runtime
-requests>=2.32.4
+requests>=2.33.0
 fastapi>=0.115
 pydantic>=2.10
 uvicorn[standard]>=0.30
 
 # Production server on Linux. Skipped elsewhere, it needs a C toolchain.
-uwsgi>=2.0; sys_platform != "win32"
+uwsgi>=2.0.22; sys_platform != "win32"
