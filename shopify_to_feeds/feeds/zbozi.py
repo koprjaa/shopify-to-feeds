@@ -2,17 +2,16 @@
 Zbozi.cz feed generator.
 """
 
-import os
-import re
 import logging
+import re
 import xml.etree.ElementTree as ET
-from typing import List, Dict, Any
+from pathlib import Path
+from typing import Any, ClassVar
 from urllib.parse import urljoin
 
 from shopify_to_feeds.feeds.base import BaseFeedGenerator
 from shopify_to_feeds.scraper.shopify_client import ShopifyClient
 from shopify_to_feeds.utils.helpers import remove_html_tags
-
 
 logger = logging.getLogger(__name__)
 
@@ -22,7 +21,7 @@ class ZboziFeedGenerator(BaseFeedGenerator):
     Generator for Zbozi.cz XML feeds.
     """
 
-    DEFAULT_DELIVERY = {
+    DEFAULT_DELIVERY: ClassVar[dict] = {
         "ZASILKOVNA": {"price": 59, "cod_price": 0},
         "PPL": {"price": 59, "cod_price": 0}
     }
@@ -42,7 +41,7 @@ class ZboziFeedGenerator(BaseFeedGenerator):
         """Get feed type identifier."""
         return "zbozi"
 
-    def _process_product(self, product: Dict[str, Any]) -> List[Dict[str, Any]]:
+    def _process_product(self, product: dict[str, Any]) -> list[dict[str, Any]]:
         """
         Process a single product and return list of variant dictionaries.
 
@@ -190,8 +189,8 @@ class ZboziFeedGenerator(BaseFeedGenerator):
                     for product in self.client.get_collection_products(collection["handle"]):
                         variants = self._process_product(product)
                         all_variants.extend(variants)
-                except Exception as e:
-                    self.logger.error(f"Error processing collection {collection['handle']}: {str(e)}")
+                except Exception:
+                    self.logger.exception("Error processing collection {collection['handle']}")
                     continue
 
             self.logger.info(f"Processed {len(all_variants)} product variants")
@@ -227,7 +226,7 @@ class ZboziFeedGenerator(BaseFeedGenerator):
                         ET.SubElement(item, key).text = str(value)
 
             # Save XML file
-            os.makedirs(os.path.dirname(output_path), exist_ok=True)
+            Path(output_path).parent.mkdir(parents=True, exist_ok=True)
             tree = ET.ElementTree(root)
             tree.write(output_path, encoding='utf-8', xml_declaration=True)
 
@@ -235,7 +234,7 @@ class ZboziFeedGenerator(BaseFeedGenerator):
             self.logger.info(f"Feed generation completed: {len(all_variants)} products")
             return output_path
 
-        except Exception as e:
-            self.logger.error(f"Error generating Zbozi feed: {str(e)}")
+        except Exception:
+            self.logger.exception("Error generating Zbozi feed")
             raise
 

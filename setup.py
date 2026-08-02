@@ -2,12 +2,14 @@
 Setup script for shopify-to-feeds package.
 """
 
-from setuptools import setup, find_packages
+from pathlib import Path
 
-with open("README.md", "r", encoding="utf-8") as fh:
+from setuptools import find_packages, setup
+
+with Path("README.md").open(encoding="utf-8") as fh:
     long_description = fh.read()
 
-with open("requirements.txt", "r", encoding="utf-8") as fh:
+with Path("requirements.txt").open(encoding="utf-8") as fh:
     requirements = [line.strip() for line in fh if line.strip() and not line.startswith("#")]
 
 setup(

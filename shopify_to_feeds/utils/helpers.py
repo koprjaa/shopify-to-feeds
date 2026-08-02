@@ -3,10 +3,9 @@ Helper utility functions.
 """
 
 import re
-from typing import Optional
 
 
-def remove_html_tags(text: Optional[str], max_length: Optional[int] = None) -> str:
+def remove_html_tags(text: str | None, max_length: int | None = None) -> str:
     """
     Remove HTML tags from text and optionally limit length.
 
@@ -46,7 +45,7 @@ def format_price(price: str, currency: str = "CZK") -> str:
         return f"0.00 {currency}"
 
 
-def format_weight(grams: Optional[float], unit: str = "kg") -> Optional[str]:
+def format_weight(grams: float | None, unit: str = "kg") -> str | None:
     """
     Convert grams to specified unit and format weight.
 

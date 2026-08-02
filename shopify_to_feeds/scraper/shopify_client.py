@@ -2,12 +2,13 @@
 Shopify API client for fetching products and collections.
 """
 
-import time
 import logging
-import requests
-from typing import List, Dict, Any, Optional, Generator
+import time
+from collections.abc import Generator
+from typing import Any
 from urllib.parse import urljoin
 
+import requests
 
 logger = logging.getLogger(__name__)
 
@@ -27,7 +28,7 @@ class ShopifyClient:
         store_url: str,
         max_retries: int = 3,
         retry_delay: int = 180,
-        user_agent: Optional[str] = None
+        user_agent: str | None = None
     ):
         """
         Initialize Shopify client.
@@ -44,7 +45,7 @@ class ShopifyClient:
         self.user_agent = user_agent or self.DEFAULT_USER_AGENT
         self.logger = logging.getLogger(self.__class__.__name__)
 
-    def _make_request(self, url: str) -> Optional[Dict[str, Any]]:
+    def _make_request(self, url: str) -> dict[str, Any] | None:
         """
         Make HTTP GET request with retry logic.
 
@@ -67,7 +68,7 @@ class ShopifyClient:
                 return response.json()
             except requests.RequestException as e:
                 self.logger.warning(
-                    f"Request failed (attempt {attempt + 1}/{self.max_retries}): {str(e)}"
+                    f"Request failed (attempt {attempt + 1}/{self.max_retries}): {e!s}"
                 )
                 if attempt < self.max_retries - 1:
                     self.logger.info(f"Retrying in {self.retry_delay} seconds...")
@@ -78,7 +79,7 @@ class ShopifyClient:
         )
         return None
 
-    def get_collections(self) -> Generator[Dict[str, Any], None, None]:
+    def get_collections(self) -> Generator[dict[str, Any], None, None]:
         """
         Fetch all collections from the store.
 
@@ -110,7 +111,7 @@ class ShopifyClient:
 
         self.logger.info(f"Total collections found: {total_collections}")
 
-    def get_collection_products(self, collection_handle: str) -> Generator[Dict[str, Any], None, None]:
+    def get_collection_products(self, collection_handle: str) -> Generator[dict[str, Any], None, None]:
         """
         Fetch all products from a specific collection.
 
@@ -138,12 +139,11 @@ class ShopifyClient:
             products = data["products"]
             self.logger.info(f"Found {len(products)} products on page {page}")
 
-            for product in products:
-                yield product
+            yield from products
 
             page += 1
 
-    def get_all_products(self) -> Generator[Dict[str, Any], None, None]:
+    def get_all_products(self) -> Generator[dict[str, Any], None, None]:
         """
         Fetch all products from the store.
 
@@ -163,12 +163,11 @@ class ShopifyClient:
             products = data["products"]
             self.logger.info(f"Found {len(products)} products on page {page}")
 
-            for product in products:
-                yield product
+            yield from products
 
             page += 1
 
-    def get_shop_info(self) -> Optional[Dict[str, str]]:
+    def get_shop_info(self) -> dict[str, str] | None:
         """
         Get basic shop information.
 
@@ -186,7 +185,7 @@ class ShopifyClient:
                     "url": self.store_url
                 }
             return None
-        except Exception as e:
-            self.logger.error(f"Error fetching shop info: {str(e)}")
+        except Exception:
+            self.logger.exception("Error fetching shop info")
             return None
 

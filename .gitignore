@@ -58,3 +58,9 @@ test_feeds/*.xml
 *.egg-info/
 build/
 dist/ 
+# Tooling caches
+.pytest_cache/
+.ruff_cache/
+uv.lock
+.venv/
+static/feeds/*.xml

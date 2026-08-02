@@ -4,9 +4,6 @@ Base class for feed generators.
 
 import logging
 from abc import ABC, abstractmethod
-from typing import List, Dict, Any, Optional
-from urllib.parse import urljoin
-
 
 logger = logging.getLogger(__name__)
 

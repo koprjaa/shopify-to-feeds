@@ -2,11 +2,11 @@
 Utility functions and helpers.
 """
 
-from shopify_to_feeds.utils.helpers import remove_html_tags, format_price, format_weight
+from shopify_to_feeds.utils.helpers import format_price, format_weight, remove_html_tags
 
 __all__ = [
-    "remove_html_tags",
     "format_price",
     "format_weight",
+    "remove_html_tags",
 ]
 

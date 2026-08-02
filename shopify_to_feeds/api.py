@@ -2,17 +2,15 @@
 FastAPI application for generating Shopify product feeds.
 """
 
-import os
 import hashlib
 import logging
 from datetime import datetime
-from typing import Optional
+from pathlib import Path
 
-from fastapi import FastAPI, BackgroundTasks, HTTPException
+from fastapi import BackgroundTasks, FastAPI, HTTPException
 from fastapi.responses import FileResponse
 
-from shopify_to_feeds.feeds import GoogleFeedGenerator, BingFeedGenerator, ZboziFeedGenerator
-
+from shopify_to_feeds.feeds import BingFeedGenerator, GoogleFeedGenerator, ZboziFeedGenerator
 
 # Setup logging
 logging.basicConfig(
@@ -33,7 +31,7 @@ feed_states = {}
 
 # Static directory for feeds
 STATIC_DIR = "static/feeds"
-os.makedirs(STATIC_DIR, exist_ok=True)
+Path(STATIC_DIR).mkdir(parents=True, exist_ok=True)
 
 
 def get_feed_filename(store_url: str, feed_type: str = "google") -> str:
@@ -63,7 +61,7 @@ def get_feed_path(store_url: str, feed_type: str = "google") -> str:
         Full path to feed file
     """
     filename = get_feed_filename(store_url, feed_type)
-    return os.path.join(STATIC_DIR, filename)
+    return str(Path(STATIC_DIR) / filename)
 
 
 def get_feed_url(store_url: str, feed_type: str = "google") -> str:
@@ -133,7 +131,7 @@ async def update_feed(
         logger.info(f"Feed generation completed for {store_url} ({feed_type})")
 
     except Exception as e:
-        logger.error(f"Error updating feed: {str(e)}")
+        logger.exception("Error updating feed")
         feed_states[store_url] = {
             "status": "error",
             "error": str(e),
@@ -200,8 +198,8 @@ async def get_feed_file(filename: str):
     Returns:
         Feed XML file
     """
-    file_path = os.path.join(STATIC_DIR, filename)
-    if not os.path.exists(file_path):
+    file_path = str(Path(STATIC_DIR) / filename)
+    if not Path(file_path).exists():
         raise HTTPException(status_code=404, detail="Feed file not found")
     return FileResponse(file_path, media_type="application/xml")
 

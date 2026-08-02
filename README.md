@@ -5,6 +5,7 @@ Generates Google Merchant Center, Bing Shopping, and Zboží.cz product feeds fr
 ![python](https://img.shields.io/badge/python-3.10+-3776AB?style=flat-square&logo=python&logoColor=white)
 ![license](https://img.shields.io/badge/license-MIT-A31F34?style=flat-square)
 ![status](https://img.shields.io/badge/status-active-22863A?style=flat-square)
+[![ci](https://github.com/koprjaa/shopify-to-feeds/actions/workflows/ci.yml/badge.svg)](https://github.com/koprjaa/shopify-to-feeds/actions/workflows/ci.yml)
 
 The native Shopify export covers Google Merchant Center and charges for the other formats. This tool produces all three from the public `/products.json` endpoint.
 
@@ -80,7 +81,19 @@ Each generator subclasses `FeedGenerator` and overrides the field mapping. Pagin
 - There is no OAuth step, so the public endpoint exposes no metafields and no private fields. Those need the Shopify Admin API with an access token.
 - `requirements.txt` lists `uwsgi` for production on Linux. The marker `; sys_platform != "win32"` skips it on Windows and macOS.
 - The repository history contains a large export of scraped product images from three real stores. Clone with `--depth 1` if you only want the code.
-- `test_feeds.py` is a script, not a test suite.
+- `test_feeds.py` is a script that generates all three feeds against a live store and prints a report. It is a smoke run, not a test.
+
+## Development
+
+```bash
+uv run --extra dev ruff check .
+uv run --extra dev pytest -q
+```
+
+The suite covers the value formatting every generator shares: description
+cleaning, price format and the gram to kilogram conversion. A wrong value there
+reaches all three merchant centres, and each rejects a feed rather than
+explaining it. CI runs on Python 3.10, 3.11, and 3.12, across Linux and Windows.
 
 ## License
 

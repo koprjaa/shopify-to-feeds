@@ -2,17 +2,16 @@
 Google Merchant Center feed generator.
 """
 
-import os
 import logging
 import xml.etree.ElementTree as ET
-from typing import List, Dict, Any, Optional
+from pathlib import Path
+from typing import Any, ClassVar
 from urllib.parse import urljoin
 
 from shopify_to_feeds.feeds.base import BaseFeedGenerator
-from shopify_to_feeds.scraper.shopify_client import ShopifyClient
 from shopify_to_feeds.scraper.image_downloader import ImageDownloader
-from shopify_to_feeds.utils.helpers import remove_html_tags, format_price
-
+from shopify_to_feeds.scraper.shopify_client import ShopifyClient
+from shopify_to_feeds.utils.helpers import format_price, remove_html_tags
 
 logger = logging.getLogger(__name__)
 
@@ -23,14 +22,14 @@ class GoogleFeedGenerator(BaseFeedGenerator):
     """
 
     DEFAULT_CURRENCY = "CZK"
-    DEFAULT_SHIPPING = {
+    DEFAULT_SHIPPING: ClassVar[dict] = {
         "country": "CZ",
         "service": "Standard",
         "price": "0 CZK",
         "carrier_shipping": "true",
         "shipping_transit_business_days": "2"
     }
-    DEFAULT_TAX = {
+    DEFAULT_TAX: ClassVar[dict] = {
         "country": "CZ",
         "rate": "21.0",
         "tax_ship": "y"
@@ -63,7 +62,7 @@ class GoogleFeedGenerator(BaseFeedGenerator):
         """Get feed type identifier."""
         return "google"
 
-    def _process_product(self, product: Dict[str, Any]) -> List[Dict[str, Any]]:
+    def _process_product(self, product: dict[str, Any]) -> list[dict[str, Any]]:
         """
         Process a single product and return list of variant dictionaries.
 
@@ -78,7 +77,7 @@ class GoogleFeedGenerator(BaseFeedGenerator):
 
         # Get product images
         image_links = []
-        if "images" in product and product["images"]:
+        if product.get("images"):
             image_links = [img["src"] for img in product["images"]]
         elif "image" in product:
             image_links = [product["image"]["src"]]
@@ -121,8 +120,8 @@ class GoogleFeedGenerator(BaseFeedGenerator):
                     variant_data["additional_image_link"] = image_links[1:]
 
                 variants.append(variant_data)
-            except Exception as e:
-                self.logger.error(f"Error processing variant {variant.get('id', 'unknown')}: {str(e)}")
+            except Exception:
+                self.logger.exception("Error processing variant {variant.get('id', 'unknown')}")
                 continue
 
         return variants
@@ -151,8 +150,8 @@ class GoogleFeedGenerator(BaseFeedGenerator):
                     for product in self.client.get_collection_products(collection["handle"]):
                         variants = self._process_product(product)
                         all_variants.extend(variants)
-                except Exception as e:
-                    self.logger.error(f"Error processing collection {collection['handle']}: {str(e)}")
+                except Exception:
+                    self.logger.exception("Error processing collection {collection['handle']}")
                     continue
 
             self.logger.info(f"Processed {len(all_variants)} product variants")
@@ -165,9 +164,8 @@ class GoogleFeedGenerator(BaseFeedGenerator):
                 parsed_url = urlparse(self.store_url)
                 store_name = parsed_url.netloc.split(".")[0]
                 timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-                images_folder = os.path.join(
-                    os.path.dirname(output_path),
-                    f"{store_name}_images_{timestamp}"
+                images_folder = str(
+                    Path(output_path).parent / f"{store_name}_images_{timestamp}"
                 )
 
                 self.logger.info(f"Starting image download to folder: {images_folder}")
@@ -218,11 +216,11 @@ class GoogleFeedGenerator(BaseFeedGenerator):
                 ET.SubElement(item, f"{g_ns}google_product_category").text = str(variant["google_product_category"])
 
                 # Optional fields
-                if "gtin" in variant and variant["gtin"]:
+                if variant.get("gtin"):
                     ET.SubElement(item, f"{g_ns}gtin").text = str(variant["gtin"])
-                if "mpn" in variant and variant["mpn"]:
+                if variant.get("mpn"):
                     ET.SubElement(item, f"{g_ns}mpn").text = str(variant["mpn"])
-                if "product_type" in variant and variant["product_type"]:
+                if variant.get("product_type"):
                     ET.SubElement(item, f"{g_ns}product_type").text = str(variant["product_type"])
                 if "additional_image_link" in variant:
                     if isinstance(variant["additional_image_link"], list):
@@ -233,7 +231,7 @@ class GoogleFeedGenerator(BaseFeedGenerator):
                         ET.SubElement(item, f"{g_ns}additional_image_link").text = str(variant["additional_image_link"])
 
             # Save XML file
-            os.makedirs(os.path.dirname(output_path), exist_ok=True)
+            Path(output_path).parent.mkdir(parents=True, exist_ok=True)
             tree = ET.ElementTree(root)
             tree.write(output_path, encoding="utf-8", xml_declaration=True)
 
@@ -241,7 +239,7 @@ class GoogleFeedGenerator(BaseFeedGenerator):
             self.logger.info(f"Feed generation completed: {len(all_variants)} products")
             return output_path
 
-        except Exception as e:
-            self.logger.error(f"Error generating Google feed: {str(e)}")
+        except Exception:
+            self.logger.exception("Error generating Google feed")
             raise
 

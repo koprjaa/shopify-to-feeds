@@ -2,13 +2,13 @@
 Image downloader for product images.
 """
 
-import os
 import logging
-import requests
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from typing import List, Dict, Any, Optional
+from pathlib import Path
+from typing import Any
 from urllib.parse import urlparse
 
+import requests
 
 logger = logging.getLogger(__name__)
 
@@ -28,7 +28,7 @@ class ImageDownloader:
         self.max_workers = max_workers
         self.logger = logging.getLogger(self.__class__.__name__)
 
-    def download_image(self, url: str, folder_path: str) -> Optional[str]:
+    def download_image(self, url: str, folder_path: str) -> str | None:
         """
         Download a single image from URL.
 
@@ -45,28 +45,28 @@ class ImageDownloader:
         try:
             response = requests.get(url, timeout=30)
             response.raise_for_status()
-            filename = os.path.basename(urlparse(url).path)
+            filename = Path(urlparse(url).path).name
             if not filename:
                 filename = f"image_{hash(url) % 10000}.jpg"
 
-            filepath = os.path.join(folder_path, filename)
-            os.makedirs(folder_path, exist_ok=True)
+            filepath = str(Path(folder_path) / filename)
+            Path(folder_path).mkdir(parents=True, exist_ok=True)
 
-            with open(filepath, "wb") as f:
+            with Path(filepath).open("wb") as f:
                 f.write(response.content)
 
             self.logger.debug(f"Downloaded image: {filename}")
             return filename
-        except requests.RequestException as e:
-            self.logger.error(f"Error downloading image from {url}: {str(e)}")
+        except requests.RequestException:
+            self.logger.exception("Error downloading image from {url}")
             return None
 
     def download_product_images(
         self,
-        products: List[Dict[str, Any]],
+        products: list[dict[str, Any]],
         images_folder: str,
         image_field: str = "image_link"
-    ) -> Dict[str, str]:
+    ) -> dict[str, str]:
         """
         Download images for multiple products.
 
@@ -78,8 +78,8 @@ class ImageDownloader:
         Returns:
             Dictionary mapping image URLs to downloaded filenames
         """
-        if not os.path.exists(images_folder):
-            os.makedirs(images_folder)
+        if not Path(images_folder).exists():
+            Path(images_folder).mkdir(parents=True, exist_ok=True)
             self.logger.info(f"Created images folder: {images_folder}")
 
         downloaded_images = {}
@@ -87,7 +87,7 @@ class ImageDownloader:
         # Collect all unique image URLs
         image_urls = set()
         for product in products:
-            if image_field in product and product[image_field]:
+            if product.get(image_field):
                 image_urls.add(product[image_field])
             if "additional_image_link" in product:
                 for img_url in product["additional_image_link"]:
@@ -117,8 +117,8 @@ class ImageDownloader:
 
                     if i % 10 == 0 or i == total_images:
                         self.logger.info(f"Downloaded {i}/{total_images} images")
-                except Exception as e:
-                    self.logger.error(f"Error downloading image from {url}: {str(e)}")
+                except Exception:
+                    self.logger.exception("Error downloading image from {url}")
 
         self.logger.info(
             f"Image download completed. Downloaded {len(downloaded_images)} images"
