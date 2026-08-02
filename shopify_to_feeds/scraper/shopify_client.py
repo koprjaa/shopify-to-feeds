@@ -41,7 +41,7 @@ class ShopifyClient:
         self,
         store_url: str,
         max_retries: int = 3,
-        retry_delay: int = 180,
+        retry_delay: int = 5,
         user_agent: str | None = None
     ):
         """
@@ -50,7 +50,7 @@ class ShopifyClient:
         Args:
             store_url: Base URL of the Shopify store
             max_retries: Maximum number of retries for failed requests
-            retry_delay: Delay between retries in seconds
+            retry_delay: Seconds before the first retry. Doubles on each further attempt.
             user_agent: Custom user agent string
         """
         self.store_url = store_url.rstrip('/')
@@ -85,8 +85,12 @@ class ShopifyClient:
                     f"Request failed (attempt {attempt + 1}/{self.max_retries}): {e!s}"
                 )
                 if attempt < self.max_retries - 1:
-                    self.logger.info(f"Retrying in {self.retry_delay} seconds...")
-                    time.sleep(self.retry_delay)
+                    # Back off rather than waiting the same long delay each time.
+                    # A flat 180 seconds meant three attempts against a dead store
+                    # took nine minutes and looked like a hang.
+                    delay = self.retry_delay * (2**attempt)
+                    self.logger.info(f"Retrying in {delay} seconds...")
+                    time.sleep(delay)
 
         self.logger.error(
             f"Failed to retrieve data from {url} after {self.max_retries} attempts"

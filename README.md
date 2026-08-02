@@ -81,7 +81,7 @@ Each generator subclasses `FeedGenerator` and overrides the field mapping. Pagin
 - There is no OAuth step, so the public endpoint exposes no metafields and no private fields. Those need the Shopify Admin API with an access token.
 - `requirements.txt` lists `uwsgi` for production on Linux. The marker `; sys_platform != "win32"` skips it on Windows and macOS.
 - The repository history contains a large export of scraped product images from three real stores. Clone with `--depth 1` if you only want the code.
-- `test_feeds.py` is a script that generates all three feeds against a live store and prints a report. It is a smoke run, not a test.
+- `smoke_feeds.py` builds all three feeds against a live store and prints a report. It takes the store URL as an argument: `python smoke_feeds.py https://shop.example.com`. It is a smoke run, not a test, and it is deliberately not named `test_*` so that pytest never collects it and puts the network in CI.
 
 ## Development
 
