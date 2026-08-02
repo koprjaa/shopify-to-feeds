@@ -204,10 +204,13 @@ class ZboziFeedGenerator(BaseFeedGenerator):
                         variants = self._process_product(product)
                         all_variants.extend(variants)
                 except Exception:
-                    self.logger.exception("Error processing collection {collection['handle']}")
+                    self.logger.exception(f"Error processing collection {collection['handle']}")
                     continue
 
             self.logger.info(f"Processed {len(all_variants)} product variants")
+
+            # Nothing collected means every request failed. Do not publish that.
+            self._require_products(all_variants)
 
             # Get shop info
             shop_info = self.client.get_shop_info()

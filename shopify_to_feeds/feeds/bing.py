@@ -142,6 +142,9 @@ class BingFeedGenerator(BaseFeedGenerator):
 
             self.logger.info(f"Processed {len(all_variants)} product variants")
 
+            # Nothing collected means every request failed. Do not publish that.
+            self._require_products(all_variants)
+
             # Get shop info
             shop_info = self.client.get_shop_info()
             if not shop_info:

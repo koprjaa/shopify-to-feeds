@@ -72,7 +72,7 @@ class ImageDownloader:
             self.logger.debug(f"Downloaded image: {filename}")
             return filename
         except requests.RequestException:
-            self.logger.exception("Error downloading image from {url}")
+            self.logger.exception(f"Error downloading image from {url}")
             return None
 
     def download_product_images(
@@ -132,7 +132,7 @@ class ImageDownloader:
                     if i % 10 == 0 or i == total_images:
                         self.logger.info(f"Downloaded {i}/{total_images} images")
                 except Exception:
-                    self.logger.exception("Error downloading image from {url}")
+                    self.logger.exception(f"Error downloading image from {url}")
 
         self.logger.info(
             f"Image download completed. Downloaded {len(downloaded_images)} images"

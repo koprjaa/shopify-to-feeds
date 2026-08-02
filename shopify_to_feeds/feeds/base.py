@@ -22,6 +22,10 @@ from abc import ABC, abstractmethod
 logger = logging.getLogger(__name__)
 
 
+class EmptyFeedError(RuntimeError):
+    """No products were collected, so there is nothing to publish."""
+
+
 class BaseFeedGenerator(ABC):
     """
     Base class for all feed generators.
@@ -54,6 +58,21 @@ class BaseFeedGenerator(ABC):
         if not url.startswith(('http://', 'https://')):
             url = f'https://{url}'
         return url.rstrip('/')
+
+    def _require_products(self, variants: list) -> None:
+        """Refuse to write a feed with nothing in it.
+
+        A merchant centre reads a feed as the whole catalogue. An empty one is
+        not a harmless no-op, it delists every product the store has. When every
+        request to the store failed, the generators still wrote a valid empty
+        channel and reported success, which is the worst possible outcome: a
+        file that looks fine and wipes the listing.
+        """
+        if not variants:
+            raise EmptyFeedError(
+                f"No products collected from {self.store_url}. Refusing to write an "
+                f"empty feed, because uploading one delists the whole catalogue."
+            )
 
     @abstractmethod
     def generate(self, output_path: str, **kwargs) -> str:

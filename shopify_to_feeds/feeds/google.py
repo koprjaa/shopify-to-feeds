@@ -135,7 +135,7 @@ class GoogleFeedGenerator(BaseFeedGenerator):
 
                 variants.append(variant_data)
             except Exception:
-                self.logger.exception("Error processing variant {variant.get('id', 'unknown')}")
+                self.logger.exception(f"Error processing variant {variant.get('id', 'unknown')}")
                 continue
 
         return variants
@@ -165,10 +165,13 @@ class GoogleFeedGenerator(BaseFeedGenerator):
                         variants = self._process_product(product)
                         all_variants.extend(variants)
                 except Exception:
-                    self.logger.exception("Error processing collection {collection['handle']}")
+                    self.logger.exception(f"Error processing collection {collection['handle']}")
                     continue
 
             self.logger.info(f"Processed {len(all_variants)} product variants")
+
+            # Nothing collected means every request failed. Do not publish that.
+            self._require_products(all_variants)
 
             # Download images if requested
             if self.download_images and self.image_downloader and all_variants:
