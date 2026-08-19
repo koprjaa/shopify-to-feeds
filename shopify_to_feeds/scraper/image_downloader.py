@@ -24,6 +24,8 @@ from urllib.parse import urlparse
 
 import requests
 
+from shopify_to_feeds.security import UrlValidationError, validate_image_url
+
 logger = logging.getLogger(__name__)
 
 
@@ -56,8 +58,16 @@ class ImageDownloader:
         if not url:
             return None
 
+        # SSRF guard: reject non-http(s) schemes and hosts that resolve to
+        # private, loopback or reserved addresses.
         try:
-            response = requests.get(url, timeout=30)
+            validate_image_url(url)
+        except UrlValidationError as e:
+            self.logger.warning("Rejected image URL %r: %s", url, e)
+            return None
+
+        try:
+            response = requests.get(url, timeout=30, allow_redirects=False)
             response.raise_for_status()
             filename = Path(urlparse(url).path).name
             if not filename:

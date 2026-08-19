@@ -18,13 +18,16 @@ FastAPI application for generating Shopify product feeds.
 
 import hashlib
 import logging
-from datetime import datetime
+import os
+import threading
+from datetime import datetime, timedelta
 from pathlib import Path
 
-from fastapi import BackgroundTasks, FastAPI, HTTPException
+from fastapi import BackgroundTasks, Depends, FastAPI, HTTPException
 from fastapi.responses import FileResponse
 
 from shopify_to_feeds.feeds import BingFeedGenerator, GoogleFeedGenerator, ZboziFeedGenerator
+from shopify_to_feeds.security import UrlValidationError, require_feed_api_key, validate_store_url
 
 # Setup logging
 logging.basicConfig(
@@ -40,12 +43,63 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# Feed states tracking
+# Feed states tracking. Bounded by count and age so an attacker cannot grow it
+# without limit by triggering updates for many distinct store URLs.
 feed_states = {}
+_feed_states_lock = threading.Lock()
+
+FEED_STATES_MAX = int(os.environ.get("FEED_STATES_MAX", "1000"))
+FEED_STATES_TTL = timedelta(seconds=int(os.environ.get("FEED_STATES_TTL", "86400")))
+
+# Cap on concurrent background feed-generation tasks.
+MAX_CONCURRENT_TASKS = int(os.environ.get("FEED_MAX_CONCURRENT", "4"))
+_task_semaphore = threading.BoundedSemaphore(MAX_CONCURRENT_TASKS)
 
 # Static directory for feeds
 STATIC_DIR = "static/feeds"
 Path(STATIC_DIR).mkdir(parents=True, exist_ok=True)
+
+
+def _evict_feed_states(now: datetime | None = None) -> None:
+    """
+    Evict expired and excess feed-state entries. Caller must hold the lock.
+
+    Bounded by age (FEED_STATES_TTL) and count (FEED_STATES_MAX), oldest first.
+    """
+    now = now or datetime.now()
+
+    expired = []
+    for key, state in feed_states.items():
+        ts = state.get("last_update")
+        if not ts:
+            continue
+        try:
+            updated = datetime.fromisoformat(ts)
+        except (TypeError, ValueError):
+            continue
+        if now - updated > FEED_STATES_TTL:
+            expired.append(key)
+    for key in expired:
+        feed_states.pop(key, None)
+
+    if len(feed_states) > FEED_STATES_MAX:
+        ordered = sorted(feed_states.items(), key=lambda item: item[1].get("last_update") or "")
+        for key, _ in ordered[: len(feed_states) - FEED_STATES_MAX]:
+            feed_states.pop(key, None)
+
+
+def _set_feed_state(store_url: str, state: dict) -> None:
+    """Thread-safe write of a feed state, with bounded eviction."""
+    with _feed_states_lock:
+        feed_states[store_url] = state
+        _evict_feed_states()
+
+
+def _update_feed_state(store_url: str, updates: dict) -> None:
+    """Thread-safe in-place update of an existing feed state."""
+    with _feed_states_lock:
+        if store_url in feed_states:
+            feed_states[store_url].update(updates)
 
 
 def get_feed_filename(store_url: str, feed_type: str = "google") -> str:
@@ -93,6 +147,36 @@ def get_feed_url(store_url: str, feed_type: str = "google") -> str:
     return f"/feeds/{filename}"
 
 
+def resolve_feed_file(filename: str) -> Path:
+    """
+    Resolve a requested feed filename to a path inside STATIC_DIR.
+
+    The filename arrives from the URL, so it is untrusted: reject anything
+    carrying a path separator or traversal segment, and verify the resolved
+    path still sits inside the feed directory.
+
+    Args:
+        filename: Requested feed file name
+
+    Returns:
+        Resolved path inside STATIC_DIR
+
+    Raises:
+        HTTPException: 404 if the name escapes STATIC_DIR or does not exist
+    """
+    if not filename or "/" in filename or "\\" in filename or filename in (".", ".."):
+        raise HTTPException(status_code=404, detail="Feed file not found")
+
+    root = Path(STATIC_DIR).resolve()
+    candidate = (root / filename).resolve()
+    if candidate != root and root not in candidate.parents:
+        logger.warning("Rejected feed file outside static dir: %s", filename)
+        raise HTTPException(status_code=404, detail="Feed file not found")
+    if not candidate.is_file():
+        raise HTTPException(status_code=404, detail="Feed file not found")
+    return candidate
+
+
 async def update_feed(
     store_url: str,
     feed_type: str = "google",
@@ -106,20 +190,36 @@ async def update_feed(
         feed_type: Type of feed to generate
         download_images: Whether to download product images
     """
+    # SSRF guard: validate and normalize before any server-side fetch.
     try:
-        # Validate URL
-        if not store_url.startswith(('http://', 'https://')):
-            store_url = f"https://{store_url}"
+        store_url = validate_store_url(store_url)
+    except UrlValidationError as e:
+        logger.warning("Rejected feed update for invalid store URL: %s", e)
+        _set_feed_state(store_url, {
+            "status": "error",
+            "last_update": datetime.now().isoformat()
+        })
+        return
 
+    # Refuse the task if too many feed generations are already running.
+    if not _task_semaphore.acquire(blocking=False):
+        logger.warning("Feed task rejected: concurrency cap reached")
+        _set_feed_state(store_url, {
+            "status": "error",
+            "last_update": datetime.now().isoformat()
+        })
+        return
+
+    try:
         feed_path = get_feed_path(store_url, feed_type)
 
         # Update state
-        feed_states[store_url] = {
+        _set_feed_state(store_url, {
             "status": "processing",
             "last_update": datetime.now().isoformat(),
             "feed_url": get_feed_url(store_url, feed_type),
             "download_images": download_images
-        }
+        })
 
         # Generate feed based on type
         if feed_type == "google":
@@ -137,23 +237,25 @@ async def update_feed(
         generator.generate(feed_path)
 
         # Update state after completion
-        feed_states[store_url].update({
+        _update_feed_state(store_url, {
             "status": "completed",
             "last_update": datetime.now().isoformat()
         })
 
         logger.info(f"Feed generation completed for {store_url} ({feed_type})")
 
-    except Exception as e:
+    except Exception:
+        # The error text can carry internal detail, so it is logged but not stored.
         logger.exception("Error updating feed")
-        feed_states[store_url] = {
+        _set_feed_state(store_url, {
             "status": "error",
-            "error": str(e),
             "last_update": datetime.now().isoformat()
-        }
+        })
+    finally:
+        _task_semaphore.release()
 
 
-@app.post("/feed/update/{store_url:path}")
+@app.post("/feed/update/{store_url:path}", dependencies=[Depends(require_feed_api_key)])
 async def trigger_feed_update(
     store_url: str,
     background_tasks: BackgroundTasks,
@@ -175,6 +277,13 @@ async def trigger_feed_update(
     if feed_type not in ["google", "bing", "zbozi"]:
         raise HTTPException(status_code=400, detail="Invalid feed type. Must be: google, bing, or zbozi")
 
+    # Reject a bad store URL up front so the caller sees it, rather than only
+    # discovering it later through the feed status.
+    try:
+        store_url = validate_store_url(store_url)
+    except UrlValidationError as e:
+        raise HTTPException(status_code=400, detail=f"Invalid store URL: {e}") from e
+
     background_tasks.add_task(update_feed, store_url, feed_type, download_images)
     return {
         "message": "Feed update started",
@@ -185,7 +294,7 @@ async def trigger_feed_update(
     }
 
 
-@app.get("/feed/status/{store_url:path}")
+@app.get("/feed/status/{store_url:path}", dependencies=[Depends(require_feed_api_key)])
 async def get_feed_status(store_url: str):
     """
     Get feed generation status.
@@ -196,9 +305,11 @@ async def get_feed_status(store_url: str):
     Returns:
         Feed status information
     """
-    if store_url not in feed_states:
-        raise HTTPException(status_code=404, detail="Feed not found")
-    return feed_states[store_url]
+    with _feed_states_lock:
+        state = feed_states.get(store_url)
+        if state is None:
+            raise HTTPException(status_code=404, detail="Feed not found")
+        return dict(state)
 
 
 @app.get("/feeds/{filename}")
@@ -212,10 +323,7 @@ async def get_feed_file(filename: str):
     Returns:
         Feed XML file
     """
-    file_path = str(Path(STATIC_DIR) / filename)
-    if not Path(file_path).exists():
-        raise HTTPException(status_code=404, detail="Feed file not found")
-    return FileResponse(file_path, media_type="application/xml")
+    return FileResponse(resolve_feed_file(filename), media_type="application/xml")
 
 
 @app.get("/")
@@ -236,5 +344,8 @@ async def root():
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
-
+    uvicorn.run(
+        app,
+        host=os.environ.get("HOST", "127.0.0.1"),
+        port=int(os.environ.get("PORT", "8000"))
+    )

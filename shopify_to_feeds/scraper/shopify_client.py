@@ -24,6 +24,8 @@ from urllib.parse import urljoin
 
 import requests
 
+from shopify_to_feeds.security import UrlValidationError, validate_store_url
+
 logger = logging.getLogger(__name__)
 
 
@@ -69,6 +71,14 @@ class ShopifyClient:
         Returns:
             JSON response data or None if request failed
         """
+        # SSRF guard (defense in depth): the store URL reaches here from the
+        # API layer, so validate every request URL before it is fetched.
+        try:
+            validate_store_url(url)
+        except UrlValidationError as e:
+            self.logger.warning("Rejected request URL %r: %s", url, e)
+            return None
+
         headers = {"User-Agent": self.user_agent}
 
         for attempt in range(self.max_retries):
@@ -76,7 +86,7 @@ class ShopifyClient:
                 self.logger.debug(
                     f"Making request to {url} (Attempt {attempt + 1}/{self.max_retries})"
                 )
-                response = requests.get(url, headers=headers, timeout=30)
+                response = requests.get(url, headers=headers, timeout=30, allow_redirects=False)
                 response.raise_for_status()
                 self.logger.debug(f"Request successful: {response.status_code}")
                 return response.json()
