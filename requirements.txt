@@ -1,5 +1,6 @@
 # Runtime
 requests>=2.33.0
+urllib3>=2.8.0  # bezpečnostní oprava (MAC-ZAV-006), přes requests
 fastapi>=0.115
 pydantic>=2.10
 uvicorn[standard]>=0.30
