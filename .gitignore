@@ -1,4 +1,20 @@
-# Python
+/target/
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+*.log
+shopify_exports/
+google_feed_exports/
+bing_feed_exports/
+zbozi_feed_exports/
+static/feeds/*.xml
+!static/feeds/.gitkeep
+smoke_feeds_out/
+test_feeds/*.xml
+*_images_*/
 __pycache__/
 *.py[cod]
 *$py.class
@@ -19,48 +35,15 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
-
-# Virtual Environment
 venv/
 env/
 ENV/
-
-# IDE
-.idea/
-.vscode/
-*.swp
-*.swo
-
-# OS
-.DS_Store
 .DS_Store?
 ._*
 .Spotlight-V100
 .Trashes
 ehthumbs.db
-Thumbs.db
-
-# Project specific
-shopify_exports/
-google_feed_exports/
-bing_feed_exports/
-zbozi_feed_exports/
-*.log
-
-# Generated feeds
-static/feeds/*.xml
-!static/feeds/.gitkeep
-
-# Test feeds
-test_feeds/*.xml
-
-# Build artifacts
-*.egg-info/
-build/
-dist/ 
-# Tooling caches
 .pytest_cache/
 .ruff_cache/
 uv.lock
 .venv/
-static/feeds/*.xml

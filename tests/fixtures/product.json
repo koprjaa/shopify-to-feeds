@@ -1,0 +1,12 @@
+{
+  "id": 10,
+  "title": "Plant & pot 12 cm",
+  "handle": "plant-pot-extra",
+  "body_html": "<p>Příliš <b>green</b> &amp; nice.</p>\n",
+  "vendor": "Example & Co",
+  "product_type": "Home/Garden",
+  "tags": ["Plants", "Pots"],
+  "images": [{"src":"https://cdn.shopify.com/main.jpg"},{"src":"https://cdn.shopify.com/extra.jpg"}],
+  "options": [{"name":"Size"}],
+  "variants": [{"id":101,"title":"Default Title","price":"19.99","compare_at_price":"25.50","sku":"SKU-1","barcode":"123456","available":true,"grams":350,"option1":"Small","option2":"Green","option3":"Round"},{"id":102,"title":"Large","price":"29.95","sku":"","available":false,"grams":0}]
+}

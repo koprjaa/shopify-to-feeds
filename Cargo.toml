@@ -1,0 +1,33 @@
+[package]
+name = "shopify-to-feeds"
+version = "1.0.0"
+edition = "2021"
+authors = ["Jan Alexandr Kopřiva"]
+license = "MIT"
+description = "Generate Google, Bing and Zbozi.cz feeds from Shopify stores"
+repository = "https://github.com/koprjaa/shopify-to-feeds"
+
+[dependencies]
+axum = "0.8"
+tower-http = { version = "0.6", features = ["fs"] }
+tokio = { version = "1", features = ["macros", "rt-multi-thread", "net", "sync", "time", "fs"] }
+reqwest = { version = "0.12", default-features = false, features = ["rustls-tls", "json", "gzip", "deflate", "blocking"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = { version = "1", features = ["preserve_order"] }
+regex = "1"
+chrono = { version = "0.4", default-features = false, features = ["clock"] }
+md5 = "0.7"
+tempfile = "3"
+clap = { version = "4", features = ["derive", "env"] }
+
+[dev-dependencies]
+httpmock = "0.8"
+tower = { version = "0.5", features = ["util"] }
+
+[[bin]]
+name = "shopify-feeds-api"
+path = "src/bin/api.rs"
+
+[[bin]]
+name = "smoke_feeds"
+path = "src/bin/smoke.rs"

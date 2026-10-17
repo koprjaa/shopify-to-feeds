@@ -7,7 +7,7 @@ User=www-data
 Group=www-data
 WorkingDirectory=/var/www/listnato
 Environment="DOMAIN=listnato.cz"
-# Security (see shopify_to_feeds/security.py):
+# Security (see src/security.rs):
 #
 #   FEED_API_KEY       REQUIRED. The /feed/* endpoints fail closed (503) while
 #                      it is unset, so the service is never exposed unguarded.
@@ -22,7 +22,9 @@ Environment="DOMAIN=listnato.cz"
 #                      top of *.myshopify.com. A custom store domain must be
 #                      listed here or its fetches are rejected.
 Environment="FEED_ALLOWED_HOSTS=listnato.cz,listnato.myshopify.com"
-ExecStart=/usr/local/bin/uwsgi --ini uwsgi.ini
+Environment="HOST=127.0.0.1"
+Environment="PORT=8000"
+ExecStart=/usr/local/bin/shopify-feeds-api
 Restart=always
 StandardOutput=append:/var/log/listnato/api.log
 StandardError=append:/var/log/listnato/api.error.log

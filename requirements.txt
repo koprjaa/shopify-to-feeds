@@ -1,9 +1,0 @@
-# Runtime
-requests>=2.33.0
-urllib3>=2.8.0  # bezpečnostní oprava (MAC-ZAV-006), přes requests
-fastapi>=0.115
-pydantic>=2.10
-uvicorn[standard]>=0.30
-
-# Production server on Linux. Skipped elsewhere, it needs a C toolchain.
-uwsgi>=2.0.22; sys_platform != "win32"
