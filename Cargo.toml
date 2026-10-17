@@ -4,7 +4,7 @@ version = "1.0.0"
 edition = "2021"
 authors = ["Jan Alexandr Kopřiva"]
 license = "MIT"
-description = "Generate Google, Bing and Zbozi.cz feeds from Shopify stores"
+description = "Generates Google, Bing and Zbozi.cz product feeds from a Shopify store."
 repository = "https://github.com/koprjaa/shopify-to-feeds"
 
 [dependencies]
