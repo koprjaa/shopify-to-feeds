@@ -2,7 +2,6 @@
 // File: tests/feeds.rs
 // Description: Empty guards, Python-derived XML fixtures and complete mock runs.
 // Author: Jan Alexandr Kopřiva
-// Based on shopify-to-feeds by Jan Alexandr Kopřiva
 // License: MIT
 
 use serde_json::{json, Value};

@@ -2,7 +2,6 @@
 // File: src/lib.rs
 // Description: Public feed generation library and shared logging.
 // Author: Jan Alexandr Kopřiva
-// Based on shopify-to-feeds by Jan Alexandr Kopřiva
 // License: MIT
 
 pub mod api;

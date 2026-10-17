@@ -2,7 +2,6 @@
 // File: src/helpers.rs
 // Description: Merchant description, price and weight formatting.
 // Author: Jan Alexandr Kopřiva
-// Based on shopify-to-feeds by Jan Alexandr Kopřiva
 // License: MIT
 
 use regex::Regex;

@@ -2,7 +2,6 @@
 // File: src/feeds.rs
 // Description: Ordered merchant XML mappings and guarded file publication.
 // Author: Jan Alexandr Kopřiva
-// Based on shopify-to-feeds by Jan Alexandr Kopřiva
 // License: MIT
 
 use crate::{

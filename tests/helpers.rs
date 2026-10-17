@@ -2,7 +2,6 @@
 // File: tests/helpers.rs
 // Description: Equivalent coverage of every original helper test.
 // Author: Jan Alexandr Kopřiva
-// Based on shopify-to-feeds by Jan Alexandr Kopřiva
 // License: MIT
 
 use serde_json::json;

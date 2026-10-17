@@ -2,7 +2,6 @@
 // File: src/api.rs
 // Description: HTTP service, bounded background jobs and feed-state cache.
 // Author: Jan Alexandr Kopřiva
-// Based on shopify-to-feeds by Jan Alexandr Kopřiva
 // License: MIT
 
 use crate::{

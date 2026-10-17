@@ -2,7 +2,6 @@
 // File: src/bin/api.rs
 // Description: Runnable HTTP service entry point.
 // Author: Jan Alexandr Kopřiva
-// Based on shopify-to-feeds by Jan Alexandr Kopřiva
 // License: MIT
 
 use clap::Parser;

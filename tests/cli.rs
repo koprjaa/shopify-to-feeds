@@ -2,7 +2,6 @@
 // File: tests/cli.rs
 // Description: Installed binary argument and exit-code contracts.
 // Author: Jan Alexandr Kopřiva
-// Based on shopify-to-feeds by Jan Alexandr Kopřiva
 // License: MIT
 
 use std::process::Command;

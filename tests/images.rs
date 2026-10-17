@@ -2,7 +2,6 @@
 // File: tests/images.rs
 // Description: Offline image download, deduplication and filename-race regressions.
 // Author: Jan Alexandr Kopřiva
-// Based on shopify-to-feeds by Jan Alexandr Kopřiva
 // License: MIT
 
 use shopify_to_feeds::{images::*, Result};

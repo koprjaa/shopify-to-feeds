@@ -2,7 +2,6 @@
 // File: src/security.rs
 // Description: API authentication, host allowlists and address validation.
 // Author: Jan Alexandr Kopřiva
-// Based on shopify-to-feeds by Jan Alexandr Kopřiva
 // License: MIT
 
 use reqwest::Url;

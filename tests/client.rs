@@ -2,7 +2,6 @@
 // File: tests/client.rs
 // Description: Local HTTP mocks for headers, pagination, retry and timeout settings.
 // Author: Jan Alexandr Kopřiva
-// Based on shopify-to-feeds by Jan Alexandr Kopřiva
 // License: MIT
 
 use serde_json::Value;

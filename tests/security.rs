@@ -2,7 +2,6 @@
 // File: tests/security.rs
 // Description: Offline equivalents of authentication, SSRF and file-serving tests.
 // Author: Jan Alexandr Kopřiva
-// Based on shopify-to-feeds by Jan Alexandr Kopřiva
 // License: MIT
 
 use shopify_to_feeds::security::*;

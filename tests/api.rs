@@ -2,7 +2,6 @@
 // File: tests/api.rs
 // Description: HTTP contracts, background work, concurrency and cache eviction.
 // Author: Jan Alexandr Kopřiva
-// Based on shopify-to-feeds by Jan Alexandr Kopřiva
 // License: MIT
 
 use axum::{
