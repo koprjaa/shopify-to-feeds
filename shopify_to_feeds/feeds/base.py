@@ -55,9 +55,9 @@ class BaseFeedGenerator(ABC):
         Returns:
             Normalized URL with protocol
         """
-        if not url.startswith(('http://', 'https://')):
-            url = f'https://{url}'
-        return url.rstrip('/')
+        if not url.startswith(("http://", "https://")):
+            url = f"https://{url}"
+        return url.rstrip("/")
 
     def _require_products(self, variants: list) -> None:
         """Refuse to write a feed with nothing in it.
@@ -97,4 +97,3 @@ class BaseFeedGenerator(ABC):
             Feed type name (e.g., 'google', 'bing', 'zbozi')
         """
         pass
-

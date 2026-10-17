@@ -23,4 +23,3 @@ __all__ = [
     "format_weight",
     "remove_html_tags",
 ]
-

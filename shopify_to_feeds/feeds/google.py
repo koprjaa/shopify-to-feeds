@@ -41,20 +41,16 @@ class GoogleFeedGenerator(BaseFeedGenerator):
         "service": "Standard",
         "price": "0 CZK",
         "carrier_shipping": "true",
-        "shipping_transit_business_days": "2"
+        "shipping_transit_business_days": "2",
     }
-    DEFAULT_TAX: ClassVar[dict] = {
-        "country": "CZ",
-        "rate": "21.0",
-        "tax_ship": "y"
-    }
+    DEFAULT_TAX: ClassVar[dict] = {"country": "CZ", "rate": "21.0", "tax_ship": "y"}
 
     def __init__(
         self,
         store_url: str,
         currency: str = DEFAULT_CURRENCY,
         download_images: bool = False,
-        max_workers: int = 4
+        max_workers: int = 4,
     ):
         """
         Initialize Google feed generator.
@@ -119,7 +115,8 @@ class GoogleFeedGenerator(BaseFeedGenerator):
                     "brand": product.get("vendor", ""),
                     "condition": "new",
                     "google_product_category": (
-                        ", ".join(product_tags) if isinstance(product_tags, list)
+                        ", ".join(product_tags)
+                        if isinstance(product_tags, list)
                         else (str(product_tags) if product_tags else "Home & Garden")
                     ),
                 }
@@ -181,34 +178,23 @@ class GoogleFeedGenerator(BaseFeedGenerator):
                 parsed_url = urlparse(self.store_url)
                 store_name = parsed_url.netloc.split(".")[0]
                 timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-                images_folder = str(
-                    Path(output_path).parent / f"{store_name}_images_{timestamp}"
-                )
+                images_folder = str(Path(output_path).parent / f"{store_name}_images_{timestamp}")
 
                 self.logger.info(f"Starting image download to folder: {images_folder}")
                 self.image_downloader.download_product_images(
-                    all_variants,
-                    images_folder,
-                    image_field="image_link"
+                    all_variants, images_folder, image_field="image_link"
                 )
 
             # Get shop info
             shop_info = self.client.get_shop_info()
             if not shop_info:
-                shop_info = {
-                    "name": "E-shop",
-                    "description": "",
-                    "url": self.store_url
-                }
+                shop_info = {"name": "E-shop", "description": "", "url": self.store_url}
 
             # Register namespace
-            ET.register_namespace('g', 'http://base.google.com/ns/1.0')
+            ET.register_namespace("g", "http://base.google.com/ns/1.0")
 
             # Create XML structure
-            root = ET.Element("rss", {
-                "version": "2.0",
-                "xmlns:g": "http://base.google.com/ns/1.0"
-            })
+            root = ET.Element("rss", {"version": "2.0", "xmlns:g": "http://base.google.com/ns/1.0"})
 
             channel = ET.SubElement(root, "channel")
             ET.SubElement(channel, "title").text = shop_info["name"]
@@ -230,7 +216,9 @@ class GoogleFeedGenerator(BaseFeedGenerator):
                 ET.SubElement(item, f"{g_ns}price").text = str(variant["price"])
                 ET.SubElement(item, f"{g_ns}brand").text = str(variant["brand"])
                 ET.SubElement(item, f"{g_ns}condition").text = str(variant["condition"])
-                ET.SubElement(item, f"{g_ns}google_product_category").text = str(variant["google_product_category"])
+                ET.SubElement(item, f"{g_ns}google_product_category").text = str(
+                    variant["google_product_category"]
+                )
 
                 # Optional fields
                 if variant.get("gtin"):
@@ -245,7 +233,9 @@ class GoogleFeedGenerator(BaseFeedGenerator):
                             if img_url:
                                 ET.SubElement(item, f"{g_ns}additional_image_link").text = str(img_url)
                     elif variant["additional_image_link"]:
-                        ET.SubElement(item, f"{g_ns}additional_image_link").text = str(variant["additional_image_link"])
+                        ET.SubElement(item, f"{g_ns}additional_image_link").text = str(
+                            variant["additional_image_link"]
+                        )
 
             # Save XML file
             Path(output_path).parent.mkdir(parents=True, exist_ok=True)
@@ -259,4 +249,3 @@ class GoogleFeedGenerator(BaseFeedGenerator):
         except Exception:
             self.logger.exception("Error generating Google feed")
             raise
-

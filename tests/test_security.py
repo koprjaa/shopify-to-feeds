@@ -136,13 +136,13 @@ def test_a_non_http_scheme_is_rejected(url):
 @pytest.mark.parametrize(
     "host",
     [
-        "127.0.0.1",        # loopback
+        "127.0.0.1",  # loopback
         "169.254.169.254",  # cloud metadata
-        "10.0.0.1",         # RFC1918
-        "192.168.1.1",      # RFC1918
-        "172.16.0.1",       # RFC1918
-        "0.0.0.0",          # unspecified
-        "[::1]",            # IPv6 loopback
+        "10.0.0.1",  # RFC1918
+        "192.168.1.1",  # RFC1918
+        "172.16.0.1",  # RFC1918
+        "0.0.0.0",  # unspecified
+        "[::1]",  # IPv6 loopback
     ],
 )
 def test_a_private_address_is_rejected_even_when_allowlisted(host, monkeypatch):

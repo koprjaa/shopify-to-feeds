@@ -69,6 +69,7 @@ def _constant_time_eq(a: str, b: str) -> bool:
 
 # --- SSRF-safe URL validation ----------------------------------------------
 
+
 class UrlValidationError(ValueError):
     """Raised when a URL fails SSRF/scheme validation."""
 
@@ -113,8 +114,11 @@ def _ip_is_forbidden(ip: ipaddress._BaseAddress) -> bool:
         or ip.is_reserved
         or ip.is_multicast
         or ip.is_unspecified
-        or (isinstance(ip, ipaddress.IPv6Address) and ip.ipv4_mapped is not None
-            and _ip_is_forbidden(ip.ipv4_mapped))
+        or (
+            isinstance(ip, ipaddress.IPv6Address)
+            and ip.ipv4_mapped is not None
+            and _ip_is_forbidden(ip.ipv4_mapped)
+        )
     )
 
 
@@ -153,9 +157,7 @@ def _resolve_and_check_ips(host: str) -> None:
         except ValueError as e:
             raise UrlValidationError(f"Unparseable resolved address: {ip_str}") from e
         if _ip_is_forbidden(ip):
-            raise UrlValidationError(
-                f"Host {host} resolves to a disallowed address: {ip_str}"
-            )
+            raise UrlValidationError(f"Host {host} resolves to a disallowed address: {ip_str}")
 
 
 def validate_store_url(url: str, *, require_https: bool = True) -> str:

@@ -33,8 +33,8 @@ def remove_html_tags(text: str | None, max_length: int | None = None) -> str:
     if not text:
         return ""
 
-    cleaned = re.sub(r'<[^>]+>', '', str(text))
-    cleaned = re.sub(r'\s+', ' ', cleaned).strip()
+    cleaned = re.sub(r"<[^>]+>", "", str(text))
+    cleaned = re.sub(r"\s+", " ", cleaned).strip()
 
     if max_length and len(cleaned) > max_length:
         cleaned = cleaned[:max_length]
@@ -76,4 +76,3 @@ def format_weight(grams: float | None, unit: str = "kg") -> str | None:
     if unit == "kg":
         return f"{float(grams) / 1000:.3f} {unit}"
     return f"{float(grams)} {unit}"
-

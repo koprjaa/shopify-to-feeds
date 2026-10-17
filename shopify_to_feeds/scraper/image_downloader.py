@@ -86,10 +86,7 @@ class ImageDownloader:
             return None
 
     def download_product_images(
-        self,
-        products: list[dict[str, Any]],
-        images_folder: str,
-        image_field: str = "image_link"
+        self, products: list[dict[str, Any]], images_folder: str, image_field: str = "image_link"
     ) -> dict[str, str]:
         """
         Download images for multiple products.
@@ -127,8 +124,7 @@ class ImageDownloader:
         # Download images using ThreadPoolExecutor for parallel processing
         with ThreadPoolExecutor(max_workers=self.max_workers) as executor:
             future_to_url = {
-                executor.submit(self.download_image, url, images_folder): url
-                for url in image_urls
+                executor.submit(self.download_image, url, images_folder): url for url in image_urls
             }
 
             for i, future in enumerate(as_completed(future_to_url), 1):
@@ -144,8 +140,5 @@ class ImageDownloader:
                 except Exception:
                     self.logger.exception(f"Error downloading image from {url}")
 
-        self.logger.info(
-            f"Image download completed. Downloaded {len(downloaded_images)} images"
-        )
+        self.logger.info(f"Image download completed. Downloaded {len(downloaded_images)} images")
         return downloaded_images
-

@@ -37,7 +37,7 @@ class ZboziFeedGenerator(BaseFeedGenerator):
 
     DEFAULT_DELIVERY: ClassVar[dict] = {
         "ZASILKOVNA": {"price": 59, "cod_price": 0},
-        "PPL": {"price": 59, "cod_price": 0}
+        "PPL": {"price": 59, "cod_price": 0},
     }
     DEFAULT_DELIVERY_DATE = 3
 
@@ -73,8 +73,8 @@ class ZboziFeedGenerator(BaseFeedGenerator):
                 # Required fields
                 "PRODUCTNAME": (
                     f"{product['title']} - {variant['title']}"
-                    if variant['title'] != "Default Title"
-                    else product['title']
+                    if variant["title"] != "Default Title"
+                    else product["title"]
                 ),
                 "DESCRIPTION": remove_html_tags(product.get("body_html", "")),
                 "URL": urljoin(base_url, f"/products/{product['handle']}?variant={variant['id']}"),
@@ -83,22 +83,20 @@ class ZboziFeedGenerator(BaseFeedGenerator):
                 "IMGURL": product["images"][0]["src"] if product.get("images") else "",
                 "ITEM_ID": str(variant["id"]),
                 "ITEMGROUP_ID": str(product["id"]),
-
                 # Recommended fields
-                "PRODUCT": product['title'],
+                "PRODUCT": product["title"],
                 "MANUFACTURER": product.get("vendor", ""),
                 "CATEGORYTEXT": " | ".join(product.get("product_type", "").split("/")),
                 "EAN": variant.get("barcode", ""),
                 "PRODUCTNO": variant.get("sku", "") or f"MM-{product['handle'][:10].upper()}",
                 "CONDITION": "new",
                 "BRAND": product.get("vendor", ""),
-
                 # Additional fields
                 "WARRANTY": "24",
                 "VISIBILITY": "1",
                 "CUSTOM_LABEL_0": "Shopify",
                 "CUSTOM_LABEL_1": product.get("product_type", ""),
-                "CUSTOM_LABEL_2": " | ".join(product.get("tags", []))
+                "CUSTOM_LABEL_2": " | ".join(product.get("tags", [])),
             }
 
             # Add price before discount if available
@@ -107,16 +105,14 @@ class ZboziFeedGenerator(BaseFeedGenerator):
 
             # Add additional images
             if len(product.get("images", [])) > 1:
-                variant_data["IMGURL_ALTERNATIVE"] = [
-                    img["src"] for img in product["images"][1:]
-                ]
+                variant_data["IMGURL_ALTERNATIVE"] = [img["src"] for img in product["images"][1:]]
 
             # Add delivery options
             for delivery_id, delivery_info in self.DEFAULT_DELIVERY.items():
                 variant_data["DELIVERY"] = {
                     "DELIVERY_ID": delivery_id,
                     "DELIVERY_PRICE": str(delivery_info["price"]),
-                    "DELIVERY_PRICE_COD": str(delivery_info["cod_price"])
+                    "DELIVERY_PRICE_COD": str(delivery_info["cod_price"]),
                 }
 
             # Add product parameters
@@ -124,55 +120,52 @@ class ZboziFeedGenerator(BaseFeedGenerator):
 
             # Add variant options as parameters
             if variant.get("option1"):
-                params.append({
-                    "PARAM_NAME": (
-                        product["options"][0]["name"]
-                        if product.get("options")
-                        else "Variant"
-                    ),
-                    "VAL": variant["option1"]
-                })
+                params.append(
+                    {
+                        "PARAM_NAME": (
+                            product["options"][0]["name"] if product.get("options") else "Variant"
+                        ),
+                        "VAL": variant["option1"],
+                    }
+                )
             if variant.get("option2"):
-                params.append({
-                    "PARAM_NAME": (
-                        product["options"][1]["name"]
-                        if len(product.get("options", [])) > 1
-                        else "Variant 2"
-                    ),
-                    "VAL": variant["option2"]
-                })
+                params.append(
+                    {
+                        "PARAM_NAME": (
+                            product["options"][1]["name"]
+                            if len(product.get("options", [])) > 1
+                            else "Variant 2"
+                        ),
+                        "VAL": variant["option2"],
+                    }
+                )
             if variant.get("option3"):
-                params.append({
-                    "PARAM_NAME": (
-                        product["options"][2]["name"]
-                        if len(product.get("options", [])) > 2
-                        else "Variant 3"
-                    ),
-                    "VAL": variant["option3"]
-                })
+                params.append(
+                    {
+                        "PARAM_NAME": (
+                            product["options"][2]["name"]
+                            if len(product.get("options", [])) > 2
+                            else "Variant 3"
+                        ),
+                        "VAL": variant["option3"],
+                    }
+                )
 
             # Add weight if available
             if variant.get("grams"):
                 weight_kg = float(variant["grams"]) / 1000
-                params.append({
-                    "PARAM_NAME": "Hmotnost",
-                    "VAL": f"{weight_kg:.2f} kg"
-                })
+                params.append({"PARAM_NAME": "Hmotnost", "VAL": f"{weight_kg:.2f} kg"})
 
             # Add availability
             if variant.get("available") is not None:
-                params.append({
-                    "PARAM_NAME": "Dostupnost",
-                    "VAL": "Skladem" if variant["available"] else "Není skladem"
-                })
+                params.append(
+                    {"PARAM_NAME": "Dostupnost", "VAL": "Skladem" if variant["available"] else "Není skladem"}
+                )
 
             # Extract pot size if in product name
-            pot_size = re.search(r'(\d+)\s*cm', variant_data["PRODUCTNAME"])
+            pot_size = re.search(r"(\d+)\s*cm", variant_data["PRODUCTNAME"])
             if pot_size:
-                params.append({
-                    "PARAM_NAME": "Průměr květináče",
-                    "VAL": f"{pot_size.group(1)} cm"
-                })
+                params.append({"PARAM_NAME": "Průměr květináče", "VAL": f"{pot_size.group(1)} cm"})
 
             variant_data["PARAM"] = params
             variants.append(variant_data)
@@ -215,11 +208,7 @@ class ZboziFeedGenerator(BaseFeedGenerator):
             # Get shop info
             shop_info = self.client.get_shop_info()
             if not shop_info:
-                shop_info = {
-                    "name": "E-shop",
-                    "description": "",
-                    "url": self.store_url
-                }
+                shop_info = {"name": "E-shop", "description": "", "url": self.store_url}
 
             # Create XML structure
             root = ET.Element("SHOP")
@@ -245,7 +234,7 @@ class ZboziFeedGenerator(BaseFeedGenerator):
             # Save XML file
             Path(output_path).parent.mkdir(parents=True, exist_ok=True)
             tree = ET.ElementTree(root)
-            tree.write(output_path, encoding='utf-8', xml_declaration=True)
+            tree.write(output_path, encoding="utf-8", xml_declaration=True)
 
             self.logger.info(f"Zbozi feed saved to {output_path}")
             self.logger.info(f"Feed generation completed: {len(all_variants)} products")
@@ -254,4 +243,3 @@ class ZboziFeedGenerator(BaseFeedGenerator):
         except Exception:
             self.logger.exception("Error generating Zbozi feed")
             raise
-

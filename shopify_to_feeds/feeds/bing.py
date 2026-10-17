@@ -35,12 +35,7 @@ class BingFeedGenerator(BaseFeedGenerator):
     """
 
     DEFAULT_CURRENCY = "CZK"
-    DEFAULT_SHIPPING: ClassVar[dict] = {
-        "PPL": {
-            "price": 0,
-            "country": "CZ"
-        }
-    }
+    DEFAULT_SHIPPING: ClassVar[dict] = {"PPL": {"price": 0, "country": "CZ"}}
 
     def __init__(self, store_url: str, currency: str = DEFAULT_CURRENCY):
         """
@@ -76,8 +71,8 @@ class BingFeedGenerator(BaseFeedGenerator):
                 "ProductID": str(variant["id"]),
                 "Title": (
                     f"{product['title']} - {variant['title']}"
-                    if variant['title'] != "Default Title"
-                    else product['title']
+                    if variant["title"] != "Default Title"
+                    else product["title"]
                 ),
                 "Link": urljoin(base_url, f"/products/{product['handle']}?variant={variant['id']}"),
                 "ImageLink": product["images"][0]["src"] if product.get("images") else "",
@@ -88,7 +83,7 @@ class BingFeedGenerator(BaseFeedGenerator):
                 "Condition": "New",
                 "Description": remove_html_tags(product.get("body_html", "")),
                 "ProductType": product.get("product_type", ""),
-                "ItemGroupID": str(product["id"])
+                "ItemGroupID": str(product["id"]),
             }
 
             # Add sale price if available
@@ -109,7 +104,7 @@ class BingFeedGenerator(BaseFeedGenerator):
                 variant_data["Shipping"] = {
                     "Service": delivery_id,
                     "Country": delivery_info["country"],
-                    "Price": f"{delivery_info['price']} {self.currency}"
+                    "Price": f"{delivery_info['price']} {self.currency}",
                 }
 
             # Add GTIN if available
@@ -148,11 +143,7 @@ class BingFeedGenerator(BaseFeedGenerator):
             # Get shop info
             shop_info = self.client.get_shop_info()
             if not shop_info:
-                shop_info = {
-                    "name": "E-shop",
-                    "description": "",
-                    "url": self.store_url
-                }
+                shop_info = {"name": "E-shop", "description": "", "url": self.store_url}
 
             # Create XML structure
             root = ET.Element("Catalog")
@@ -178,7 +169,7 @@ class BingFeedGenerator(BaseFeedGenerator):
             # Save XML file
             Path(output_path).parent.mkdir(parents=True, exist_ok=True)
             tree = ET.ElementTree(root)
-            tree.write(output_path, encoding='utf-8', xml_declaration=True)
+            tree.write(output_path, encoding="utf-8", xml_declaration=True)
 
             self.logger.info(f"Bing feed saved to {output_path}")
             self.logger.info(f"Feed generation completed: {len(all_variants)} products")
@@ -187,4 +178,3 @@ class BingFeedGenerator(BaseFeedGenerator):
         except Exception:
             self.logger.exception("Error generating Bing feed")
             raise
-

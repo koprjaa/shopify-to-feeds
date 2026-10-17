@@ -30,17 +30,14 @@ from shopify_to_feeds.feeds import BingFeedGenerator, GoogleFeedGenerator, Zbozi
 from shopify_to_feeds.security import UrlValidationError, require_feed_api_key, validate_store_url
 
 # Setup logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
-)
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
 # Initialize FastAPI app
 app = FastAPI(
     title="Shopify to Feeds API",
     description="Universal tool for generating product feeds from Shopify stores",
-    version="1.0.0"
+    version="1.0.0",
 )
 
 # Feed states tracking. Bounded by count and age so an attacker cannot grow it
@@ -177,11 +174,7 @@ def resolve_feed_file(filename: str) -> Path:
     return candidate
 
 
-async def update_feed(
-    store_url: str,
-    feed_type: str = "google",
-    download_images: bool = True
-):
+async def update_feed(store_url: str, feed_type: str = "google", download_images: bool = True):
     """
     Update feed in background.
 
@@ -195,38 +188,32 @@ async def update_feed(
         store_url = validate_store_url(store_url)
     except UrlValidationError as e:
         logger.warning("Rejected feed update for invalid store URL: %s", e)
-        _set_feed_state(store_url, {
-            "status": "error",
-            "last_update": datetime.now().isoformat()
-        })
+        _set_feed_state(store_url, {"status": "error", "last_update": datetime.now().isoformat()})
         return
 
     # Refuse the task if too many feed generations are already running.
     if not _task_semaphore.acquire(blocking=False):
         logger.warning("Feed task rejected: concurrency cap reached")
-        _set_feed_state(store_url, {
-            "status": "error",
-            "last_update": datetime.now().isoformat()
-        })
+        _set_feed_state(store_url, {"status": "error", "last_update": datetime.now().isoformat()})
         return
 
     try:
         feed_path = get_feed_path(store_url, feed_type)
 
         # Update state
-        _set_feed_state(store_url, {
-            "status": "processing",
-            "last_update": datetime.now().isoformat(),
-            "feed_url": get_feed_url(store_url, feed_type),
-            "download_images": download_images
-        })
+        _set_feed_state(
+            store_url,
+            {
+                "status": "processing",
+                "last_update": datetime.now().isoformat(),
+                "feed_url": get_feed_url(store_url, feed_type),
+                "download_images": download_images,
+            },
+        )
 
         # Generate feed based on type
         if feed_type == "google":
-            generator = GoogleFeedGenerator(
-                store_url,
-                download_images=download_images
-            )
+            generator = GoogleFeedGenerator(store_url, download_images=download_images)
         elif feed_type == "bing":
             generator = BingFeedGenerator(store_url)
         elif feed_type == "zbozi":
@@ -237,30 +224,21 @@ async def update_feed(
         generator.generate(feed_path)
 
         # Update state after completion
-        _update_feed_state(store_url, {
-            "status": "completed",
-            "last_update": datetime.now().isoformat()
-        })
+        _update_feed_state(store_url, {"status": "completed", "last_update": datetime.now().isoformat()})
 
         logger.info(f"Feed generation completed for {store_url} ({feed_type})")
 
     except Exception:
         # The error text can carry internal detail, so it is logged but not stored.
         logger.exception("Error updating feed")
-        _set_feed_state(store_url, {
-            "status": "error",
-            "last_update": datetime.now().isoformat()
-        })
+        _set_feed_state(store_url, {"status": "error", "last_update": datetime.now().isoformat()})
     finally:
         _task_semaphore.release()
 
 
 @app.post("/feed/update/{store_url:path}", dependencies=[Depends(require_feed_api_key)])
 async def trigger_feed_update(
-    store_url: str,
-    background_tasks: BackgroundTasks,
-    feed_type: str = "google",
-    download_images: bool = True
+    store_url: str, background_tasks: BackgroundTasks, feed_type: str = "google", download_images: bool = True
 ):
     """
     Trigger feed update for a Shopify store.
@@ -290,7 +268,7 @@ async def trigger_feed_update(
         "store_url": store_url,
         "feed_type": feed_type,
         "feed_url": get_feed_url(store_url, feed_type),
-        "download_images": download_images
+        "download_images": download_images,
     }
 
 
@@ -336,16 +314,13 @@ async def root():
         "endpoints": {
             "update_feed": "POST /feed/update/{store_url}?feed_type=google&download_images=true",
             "feed_status": "GET /feed/status/{store_url}",
-            "get_feed": "GET /feeds/{filename}"
+            "get_feed": "GET /feeds/{filename}",
         },
-        "supported_feeds": ["google", "bing", "zbozi"]
+        "supported_feeds": ["google", "bing", "zbozi"],
     }
 
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(
-        app,
-        host=os.environ.get("HOST", "127.0.0.1"),
-        port=int(os.environ.get("PORT", "8000"))
-    )
+
+    uvicorn.run(app, host=os.environ.get("HOST", "127.0.0.1"), port=int(os.environ.get("PORT", "8000")))

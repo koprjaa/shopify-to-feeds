@@ -22,4 +22,3 @@ This package provides feed generators for various e-commerce platforms:
 """
 
 __version__ = "1.0.0"
-

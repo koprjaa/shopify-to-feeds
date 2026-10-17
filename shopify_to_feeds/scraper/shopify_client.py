@@ -40,11 +40,7 @@ class ShopifyClient:
     )
 
     def __init__(
-        self,
-        store_url: str,
-        max_retries: int = 3,
-        retry_delay: int = 5,
-        user_agent: str | None = None
+        self, store_url: str, max_retries: int = 3, retry_delay: int = 5, user_agent: str | None = None
     ):
         """
         Initialize Shopify client.
@@ -55,7 +51,7 @@ class ShopifyClient:
             retry_delay: Seconds before the first retry. Doubles on each further attempt.
             user_agent: Custom user agent string
         """
-        self.store_url = store_url.rstrip('/')
+        self.store_url = store_url.rstrip("/")
         self.max_retries = max_retries
         self.retry_delay = retry_delay
         self.user_agent = user_agent or self.DEFAULT_USER_AGENT
@@ -83,17 +79,13 @@ class ShopifyClient:
 
         for attempt in range(self.max_retries):
             try:
-                self.logger.debug(
-                    f"Making request to {url} (Attempt {attempt + 1}/{self.max_retries})"
-                )
+                self.logger.debug(f"Making request to {url} (Attempt {attempt + 1}/{self.max_retries})")
                 response = requests.get(url, headers=headers, timeout=30, allow_redirects=False)
                 response.raise_for_status()
                 self.logger.debug(f"Request successful: {response.status_code}")
                 return response.json()
             except requests.RequestException as e:
-                self.logger.warning(
-                    f"Request failed (attempt {attempt + 1}/{self.max_retries}): {e!s}"
-                )
+                self.logger.warning(f"Request failed (attempt {attempt + 1}/{self.max_retries}): {e!s}")
                 if attempt < self.max_retries - 1:
                     # Back off rather than waiting the same long delay each time.
                     # A flat 180 seconds meant three attempts against a dead store
@@ -102,9 +94,7 @@ class ShopifyClient:
                     self.logger.info(f"Retrying in {delay} seconds...")
                     time.sleep(delay)
 
-        self.logger.error(
-            f"Failed to retrieve data from {url} after {self.max_retries} attempts"
-        )
+        self.logger.error(f"Failed to retrieve data from {url} after {self.max_retries} attempts")
         return None
 
     def get_collections(self) -> Generator[dict[str, Any], None, None]:
@@ -130,9 +120,7 @@ class ShopifyClient:
             self.logger.info(f"Found {len(collections)} collections on page {page}")
 
             for collection in collections:
-                self.logger.info(
-                    f"Processing collection: {collection['title']} ({collection['handle']})"
-                )
+                self.logger.info(f"Processing collection: {collection['title']} ({collection['handle']})")
                 yield collection
 
             page += 1
@@ -152,13 +140,8 @@ class ShopifyClient:
         page = 1
 
         while True:
-            url = urljoin(
-                self.store_url,
-                f"/collections/{collection_handle}/products.json?page={page}"
-            )
-            self.logger.info(
-                f"Fetching products from collection: {collection_handle} (page {page})"
-            )
+            url = urljoin(self.store_url, f"/collections/{collection_handle}/products.json?page={page}")
+            self.logger.info(f"Fetching products from collection: {collection_handle} (page {page})")
 
             data = self._make_request(url)
             if not data or not data.get("products"):
@@ -207,13 +190,8 @@ class ShopifyClient:
             data = self._make_request(url)
             if data and data.get("products"):
                 product = data["products"][0]
-                return {
-                    "name": product.get("vendor", ""),
-                    "description": "",
-                    "url": self.store_url
-                }
+                return {"name": product.get("vendor", ""), "description": "", "url": self.store_url}
             return None
         except Exception:
             self.logger.exception("Error fetching shop info")
             return None
-
