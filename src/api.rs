@@ -16,7 +16,6 @@ use axum::{
     routing::{get, post},
     Json, Router,
 };
-use serde::Deserialize;
 use serde_json::{json, Value};
 use std::{
     collections::HashMap,
@@ -122,11 +121,16 @@ impl AppState {
                 .unwrap_or_else(|_| default.into())
                 .parse()?)
         }
+        let max = usize::try_from(number("FEED_STATES_MAX", "1000")?)?;
+        let concurrent = usize::try_from(number("FEED_MAX_CONCURRENT", "4")?)?;
+        if concurrent > tokio::sync::Semaphore::MAX_PERMITS {
+            return Err("FEED_MAX_CONCURRENT exceeds the supported limit".into());
+        }
         let state = Self::new(
             PathBuf::from("static/feeds"),
-            number("FEED_STATES_MAX", "1000")? as usize,
+            max,
             number("FEED_STATES_TTL", "86400")?,
-            number("FEED_MAX_CONCURRENT", "4")? as usize,
+            concurrent,
         );
         std::fs::create_dir_all(&state.root)?;
         Ok(state)
@@ -145,44 +149,45 @@ fn auth(headers: &HeaderMap) -> std::result::Result<(), ApiError> {
     )
     .map_err(|(c, m)| error(c, m))
 }
-#[derive(Deserialize)]
-struct UpdateQuery {
-    #[serde(default = "default_kind")]
-    feed_type: String,
-    #[serde(default = "default_images", deserialize_with = "query_bool")]
-    download_images: bool,
-}
-fn default_kind() -> String {
-    "google".into()
-}
-fn default_images() -> bool {
-    true
-}
-fn query_bool<'de, D: serde::Deserializer<'de>>(d: D) -> std::result::Result<bool, D::Error> {
-    let s = String::deserialize(d)?;
-    match s.to_lowercase().as_str() {
-        "true" | "1" | "on" | "yes" => Ok(true),
-        "false" | "0" | "off" | "no" => Ok(false),
-        _ => Err(serde::de::Error::custom("Input should be a valid boolean")),
-    }
-}
 async fn trigger(
     State(state): State<AppState>,
     Path(store): Path<String>,
     headers: HeaderMap,
-    query: std::result::Result<Query<UpdateQuery>, axum::extract::rejection::QueryRejection>,
+    query: std::result::Result<
+        Query<HashMap<String, String>>,
+        axum::extract::rejection::QueryRejection,
+    >,
 ) -> std::result::Result<Json<Value>, ApiError> {
     auth(&headers)?;
-    let q = query.map_err(|_| (StatusCode::UNPROCESSABLE_ENTITY, Json(json!({"detail":[{"type":"bool_parsing","loc":["query","download_images"],"msg":"Input should be a valid boolean, unable to interpret input"}]}))))?.0;
-    let kind = FeedType::parse(&q.feed_type)
+    let q = query.map_err(|_| error(422, "Invalid query string"))?.0;
+    let feed_type = q
+        .get("feed_type")
+        .cloned()
+        .unwrap_or_else(|| "google".into());
+    let download_images = match q.get("download_images") {
+        None => true,
+        Some(s) => match s.to_lowercase().as_str() {
+            "true" | "1" | "on" | "yes" | "t" | "y" => true,
+            "false" | "0" | "off" | "no" | "f" | "n" => false,
+            _ => {
+                return Err((
+                    StatusCode::UNPROCESSABLE_ENTITY,
+                    Json(
+                        json!({"detail":[{"type":"bool_parsing","loc":["query","download_images"],"msg":"Input should be a valid boolean, unable to interpret input","input":s}]}),
+                    ),
+                ))
+            }
+        },
+    };
+    let kind = FeedType::parse(&feed_type)
         .map_err(|_| error(400, "Invalid feed type. Must be: google, bing, or zbozi"))?;
     let validator = state.validate_store.clone();
     let store = tokio::task::spawn_blocking(move || validator(&store))
         .await
         .map_err(|_| error(500, "Internal Server Error"))?
         .map_err(|e| error(400, format!("Invalid store URL: {e}")))?;
-    let response = json!({"message":"Feed update started","store_url":store,"feed_type":q.feed_type,"feed_url":feed_url(&store,&q.feed_type),"download_images":q.download_images});
-    tokio::task::spawn_blocking(move || update_feed(&state, &store, kind, q.download_images));
+    let response = json!({"message":"Feed update started","store_url":store,"feed_type":feed_type,"feed_url":feed_url(&store,&feed_type),"download_images":download_images});
+    tokio::task::spawn_blocking(move || update_feed(&state, &store, kind, download_images));
     Ok(Json(response))
 }
 pub fn update_feed(state: &AppState, store: &str, kind: FeedType, images: bool) {

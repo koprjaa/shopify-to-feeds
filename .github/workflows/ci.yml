@@ -1,3 +1,9 @@
+# Project: shopify-to-feeds
+# File: .github/workflows/ci.yml
+# Description: Formatting, lint, test and release checks on Linux and Windows.
+# Author: Jan Alexandr Kopřiva
+# License: MIT
+
 name: Rust CI
 
 on:

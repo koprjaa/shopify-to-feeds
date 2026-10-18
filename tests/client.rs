@@ -162,3 +162,30 @@ fn products_are_lazy_and_stop_fetching_when_consumer_stops() {
         Duration::from_secs(30)
     );
 }
+
+#[test]
+fn response_charsets_and_bom_are_decoded_without_live_network() {
+    use shopify_to_feeds::client::decode_response;
+    let server = httpmock::MockServer::start();
+    server.mock(|w, t| {
+        w.path("/latin1");
+        t.header("content-type", "application/json; charset=iso-8859-1")
+            .body(b"{\"text\":\"caf\xe9\"}");
+    });
+    server.mock(|w, t| {
+        w.path("/bom");
+        t.header("content-type", "application/json")
+            .body(b"\xef\xbb\xbf{\"text\":\"ok\"}");
+    });
+    let http = shopify_to_feeds::client::http_client_builder()
+        .build()
+        .unwrap();
+    assert_eq!(
+        decode_response(http.get(server.url("/latin1")).send().unwrap()).unwrap()["text"],
+        "café"
+    );
+    assert_eq!(
+        decode_response(http.get(server.url("/bom")).send().unwrap()).unwrap()["text"],
+        "ok"
+    );
+}

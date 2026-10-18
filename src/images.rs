@@ -13,6 +13,7 @@ use std::{
         Mutex,
     },
 };
+pub const MAX_IMAGE_WORKERS: usize = 64;
 pub const IMAGE_USER_AGENT: &str = "python-requests/2.33.0";
 pub fn image_filename(url: &str) -> String {
     let base = reqwest::Url::parse(url)
@@ -108,28 +109,38 @@ pub fn download_product_images_with<T: ImageTransport>(
         log("INFO", "No images found to download");
         return Ok(HashMap::new());
     }
+    let bases: Vec<_> = urls.iter().map(|u| image_filename(u)).collect();
+    let mut counts = HashMap::new();
+    for base in &bases {
+        *counts.entry(base.to_lowercase()).or_insert(0usize) += 1;
+    }
+    let reserved: BTreeSet<_> = bases.iter().map(|b| b.to_lowercase()).collect();
+    let mut used = BTreeSet::new();
     let names: Vec<_> = urls
         .iter()
-        .map(|u| {
-            let base = image_filename(u);
-            if urls
-                .iter()
-                .filter(|other| image_filename(other) == base)
-                .count()
-                > 1
-            {
+        .zip(&bases)
+        .map(|(u, base)| {
+            let mut name = if counts[&base.to_lowercase()] > 1 {
                 format!("{:x}_{base}", md5::compute(u))
             } else {
-                base
+                base.clone()
+            };
+            // Generated names must not collide with another URL's original basename.
+            while used.contains(&name.to_lowercase())
+                || (name != *base && reserved.contains(&name.to_lowercase()))
+            {
+                name.insert(0, '_');
             }
+            used.insert(name.to_lowercase());
+            name
         })
         .collect();
     let index = AtomicUsize::new(0);
     let finished = AtomicUsize::new(0);
     let result = Mutex::new(HashMap::new());
-    std::thread::scope(|scope| {
-        for _ in 0..workers.min(urls.len()) {
-            scope.spawn(|| loop {
+    std::thread::scope(|scope| -> Result<()> {
+        for _ in 0..workers.min(urls.len()).min(MAX_IMAGE_WORKERS) {
+            std::thread::Builder::new().spawn_scoped(scope, || loop {
                 let i = index.fetch_add(1, Ordering::Relaxed);
                 if i >= urls.len() {
                     break;
@@ -150,9 +161,10 @@ pub fn download_product_images_with<T: ImageTransport>(
                 if done.is_multiple_of(10) || done == urls.len() {
                     log("INFO", format!("Downloaded {done}/{} images", urls.len()));
                 }
-            });
+            })?;
         }
-    });
+        Ok(())
+    })?;
     let result = result.into_inner().unwrap();
     log(
         "INFO",

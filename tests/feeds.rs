@@ -295,3 +295,29 @@ fn atomic_replacement_preserves_permissions_and_does_not_follow_symlinks() {
     assert_eq!(std::fs::read_to_string(outside).unwrap(), "unchanged");
     assert_eq!(std::fs::read_to_string(path).unwrap(), "replacement");
 }
+
+#[test]
+fn google_skips_false_additional_images_before_coercing_to_text() {
+    let mut p = product();
+    p["images"] = json!([{"src":"main"},{"src":null},{"src":""},{"src":false},{"src":"extra"}]);
+    let nodes = process_product(FeedType::Google, STORE, "CZK", &p).unwrap();
+    let images: Vec<_> = nodes[0]
+        .children
+        .iter()
+        .filter(|n| n.name == "g:additional_image_link")
+        .map(|n| n.text.as_str())
+        .collect();
+    assert_eq!(images, vec!["extra"]);
+}
+
+#[test]
+fn nonfinite_feed_weights_use_python_spelling() {
+    let mut p = product();
+    p["variants"][0]["grams"] = json!("nan");
+    for kind in [FeedType::Bing, FeedType::Zbozi] {
+        let nodes = process_product(kind, STORE, "CZK", &p).unwrap();
+        let xml = render(kind, STORE, &json!({}), nodes).unwrap();
+        assert!(xml.contains(">nan kg<"));
+        assert!(!xml.contains("NaN kg"));
+    }
+}

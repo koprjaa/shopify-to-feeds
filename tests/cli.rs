@@ -65,3 +65,17 @@ fn api_help_version_and_invalid_port() {
         Some(2)
     );
 }
+
+#[test]
+fn excessive_concurrency_is_a_configuration_error_without_panic() {
+    let root = tempfile::tempdir().unwrap();
+    let output = Command::new(env!("CARGO_BIN_EXE_shopify-feeds-api"))
+        .current_dir(root.path())
+        .env("FEED_MAX_CONCURRENT", usize::MAX.to_string())
+        .output()
+        .unwrap();
+    assert!(!output.status.success());
+    let stderr = String::from_utf8_lossy(&output.stderr);
+    assert!(!stderr.contains("panicked"), "{stderr}");
+    assert!(stderr.contains("supported limit"), "{stderr}");
+}

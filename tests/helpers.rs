@@ -143,3 +143,11 @@ fn negative_description_limit_uses_python_slice_semantics() {
     assert_eq!(remove_html_tags(&json!("kůň"), Some(-1)), "ků");
     assert_eq!(remove_html_tags(&json!("text"), Some(-100)), "");
 }
+
+#[test]
+fn large_unicode_description_is_truncated_at_character_boundaries() {
+    let input = json!(format!("<p>{}</p>", "kůň ".repeat(300_000)));
+    let result = remove_html_tags(&input, Some(5000));
+    assert_eq!(result.chars().count(), 5000);
+    assert_eq!(result, "kůň ".repeat(1250));
+}

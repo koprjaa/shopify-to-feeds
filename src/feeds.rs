@@ -6,7 +6,7 @@
 
 use crate::{
     client::{ShopifyClient, Transport},
-    helpers::{format_price, number, remove_html_tags, text, truth},
+    helpers::{fixed, format_price, number, remove_html_tags, text, truth},
     log, Result,
 };
 use regex::Regex;
@@ -119,7 +119,14 @@ fn add(nodes: &mut Vec<Node>, key: &str, value: impl Into<String>) {
 }
 fn images(p: &Value, singular: bool) -> Result<Vec<String>> {
     if let Some(a) = p["images"].as_array().filter(|a| !a.is_empty()) {
-        return a.iter().map(|i| required(i, "src")).collect();
+        let mut links = Vec::new();
+        for (index, image) in a.iter().enumerate() {
+            let link = required(image, "src")?;
+            if !singular || index == 0 || truth(&image["src"]) {
+                links.push(link);
+            }
+        }
+        return Ok(links);
     }
     if singular && p.get("image").is_some() {
         return Ok(vec![required(&p["image"], "src")?]);
@@ -132,6 +139,7 @@ fn join(store: &str, path: &str) -> Result<String> {
     let authority_end = store[authority_start..]
         .find(['/', '?', '#'])
         .map_or(store.len(), |i| authority_start + i);
+    let path = path.replace(['\t', '\r', '\n'], "");
     let suffix_start = path.find(['?', '#']).unwrap_or(path.len());
     let mut segments = Vec::new();
     let raw_path = &path[..suffix_start];
@@ -181,12 +189,32 @@ pub fn process_product(
     currency: &str,
     p: &Value,
 ) -> Result<Vec<Node>> {
-    let imgs = images(p, kind == FeedType::Google)?;
     let mut result = vec![];
-    let Some(variants) = p["variants"].as_array() else {
+    let google_images = if kind == FeedType::Google {
+        Some(images(p, true)?)
+    } else {
+        None
+    };
+    let variants = match p.get("variants") {
+        None => return Ok(result),
+        Some(Value::Array(a)) => a,
+        _ => return Err("Invalid variants: expected an array".into()),
+    };
+    // Bing and Zbozi inspect images only when a variant exists.
+    if variants.is_empty() && kind != FeedType::Google {
         return Ok(result);
+    }
+    if kind != FeedType::Google && p.get("images").is_some_and(|v| !v.is_array()) {
+        return Err("Invalid images: expected an array".into());
+    }
+    let imgs = match google_images {
+        Some(imgs) => imgs,
+        None => images(p, false)?,
     };
     for v in variants {
+        if !v.is_object() {
+            return Err("Invalid variant: expected an object".into());
+        }
         let mapped = (|| -> Result<Node> {
             let mut n = vec![];
             let product_title = title(p, v, kind == FeedType::Google)?;
@@ -303,8 +331,8 @@ pub fn process_product(
                             &mut n,
                             "ShippingWeight",
                             format!(
-                                "{:.2} kg",
-                                number(&v["grams"]).ok_or("Invalid weight")? / 1000.0
+                                "{} kg",
+                                fixed(number(&v["grams"]).ok_or("Invalid weight")? / 1000.0, 2)
                             ),
                         );
                     }
@@ -339,6 +367,9 @@ pub fn process_product(
                         Value::Null if p.get("tags").is_none() => String::new(),
                         _ => return Err("Invalid tags".into()),
                     };
+                    if p.get("product_type").is_some_and(|v| !v.is_string()) {
+                        return Err("Invalid product_type: expected a string".into());
+                    }
                     let typ = get(p, "product_type", "");
                     let sku = if truth(&v["sku"]) {
                         text(&v["sku"])
@@ -422,8 +453,8 @@ pub fn process_product(
                         param(
                             "Hmotnost".into(),
                             format!(
-                                "{:.2} kg",
-                                number(&v["grams"]).ok_or("Invalid weight")? / 1000.0
+                                "{} kg",
+                                fixed(number(&v["grams"]).ok_or("Invalid weight")? / 1000.0, 2)
                             ),
                         );
                     }

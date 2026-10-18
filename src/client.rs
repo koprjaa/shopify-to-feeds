@@ -45,9 +45,84 @@ impl Transport for HttpTransport {
             .header("Connection", "keep-alive")
             .send()?
             .error_for_status()?;
-        Ok(serde_json::from_reader(response)?)
+        decode_response(response)
     }
 }
+pub fn decode_response(response: reqwest::blocking::Response) -> Result<Value> {
+    let content_type = response
+        .headers()
+        .get(reqwest::header::CONTENT_TYPE)
+        .and_then(|v| v.to_str().ok())
+        .unwrap_or("")
+        .to_lowercase();
+    if content_type.contains("charset=") {
+        return Ok(serde_json::from_str(&response.text()?)?);
+    }
+    let bytes = response.bytes()?;
+    decode_json(&bytes)
+}
+
+pub fn decode_json(bytes: &[u8]) -> Result<Value> {
+    // requests detects JSON's UTF-16/32 encodings when no charset is supplied.
+    let (bytes, width, little) = if bytes.starts_with(&[0xff, 0xfe, 0, 0]) {
+        (&bytes[4..], 4, true)
+    } else if bytes.starts_with(&[0, 0, 0xfe, 0xff]) {
+        (&bytes[4..], 4, false)
+    } else if bytes.starts_with(&[0xff, 0xfe]) {
+        (&bytes[2..], 2, true)
+    } else if bytes.starts_with(&[0xfe, 0xff]) {
+        (&bytes[2..], 2, false)
+    } else if bytes.starts_with(&[0xef, 0xbb, 0xbf]) {
+        (&bytes[3..], 1, false)
+    } else if bytes.len() >= 4 && bytes[..3] == [0, 0, 0] {
+        (bytes, 4, false)
+    } else if bytes.len() >= 4 && bytes[1..4] == [0, 0, 0] {
+        (bytes, 4, true)
+    } else if bytes.len() >= 2 && bytes[0] == 0 {
+        (bytes, 2, false)
+    } else if bytes.len() >= 2 && bytes[1] == 0 {
+        (bytes, 2, true)
+    } else {
+        (bytes, 1, false)
+    };
+    if width == 1 {
+        return Ok(serde_json::from_slice(bytes)?);
+    }
+    if bytes.len() % width != 0 {
+        return Err("Truncated JSON encoding".into());
+    }
+    let text = if width == 2 {
+        let units: Vec<_> = bytes
+            .as_chunks::<2>()
+            .0
+            .iter()
+            .map(|b| {
+                if little {
+                    u16::from_le_bytes(*b)
+                } else {
+                    u16::from_be_bytes(*b)
+                }
+            })
+            .collect();
+        String::from_utf16(&units)?
+    } else {
+        bytes
+            .as_chunks::<4>()
+            .0
+            .iter()
+            .map(|b| {
+                let n = if little {
+                    u32::from_le_bytes(*b)
+                } else {
+                    u32::from_be_bytes(*b)
+                };
+                char::from_u32(n).ok_or("Invalid JSON character")
+            })
+            .collect::<std::result::Result<String, _>>()?
+    };
+    Ok(serde_json::from_str(&text)?)
+}
+
 pub struct ShopifyClient<T = HttpTransport> {
     pub store_url: String,
     pub max_retries: usize,
