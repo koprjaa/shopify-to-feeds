@@ -221,7 +221,7 @@ fn normalization_keeps_store_paths_but_product_links_are_absolute() {
 #[test]
 fn negative_fractional_integer_price_has_no_negative_zero() {
     let mut p = product();
-    p["variants"][0]["price"] = json!("-0.25");
+    p["variants"][0]["price"] = json!("-0.001");
     let nodes = process_product(FeedType::Bing, STORE, "CZK", &p).unwrap();
     assert_eq!(
         nodes[0]
@@ -320,4 +320,142 @@ fn nonfinite_feed_weights_use_python_spelling() {
         assert!(xml.contains(">nan kg<"));
         assert!(!xml.contains("NaN kg"));
     }
+}
+
+struct Scripted<F>(F);
+impl<F: Fn(&reqwest::Url) -> Result<Value> + Send + Sync> Transport for Scripted<F> {
+    fn get(&self, url: &str, _: &str) -> Result<Value> {
+        (self.0)(&reqwest::Url::parse(url)?)
+    }
+    fn wait(&self, _: std::time::Duration) {}
+}
+fn collections_page(url: &reqwest::Url, handles: &[&str]) -> Option<Value> {
+    (url.path() == "/collections.json").then(|| {
+        if url.query() == Some("page=1") {
+            json!({"collections": handles.iter().map(|h| json!({"title": h, "handle": h})).collect::<Vec<_>>()})
+        } else {
+            json!({"collections": []})
+        }
+    })
+}
+fn product_with(id: u64, extra: Value) -> Value {
+    let mut p = product();
+    p["id"] = json!(id);
+    p["variants"][0]["id"] = json!(id * 10);
+    p["variants"][1]["id"] = json!(id * 10 + 1);
+    if let Value::Object(extra) = extra {
+        p.as_object_mut().unwrap().extend(extra);
+    }
+    p
+}
+#[test]
+fn a_failed_page_request_does_not_publish_a_partial_feed() {
+    for kind in KINDS {
+        let client = ShopifyClient::with_transport(
+            STORE,
+            Scripted(|url: &reqwest::Url| {
+                if let Some(c) = collections_page(url, &["all"]) {
+                    return Ok(c);
+                }
+                if url.query().is_some_and(|q| q.starts_with("page=1")) {
+                    return Ok(json!({"products": [product()]}));
+                }
+                if url.query() == Some("page=2&limit=250") || url.query() == Some("page=2") {
+                    return Err("503 from the store".into());
+                }
+                Ok(json!({"products": []}))
+            }),
+        );
+        let tmp = tempfile::tempdir().unwrap();
+        let path = tmp.path().join("feed.xml");
+        std::fs::write(&path, "old feed").unwrap();
+        let mut client = client;
+        client.max_retries = 1;
+        assert!(
+            generate(&client, kind, &path, "CZK", false, 4).is_err(),
+            "{}",
+            kind.name()
+        );
+        assert_eq!(std::fs::read_to_string(&path).unwrap(), "old feed");
+    }
+}
+#[test]
+fn a_product_in_two_collections_is_listed_once() {
+    let client = ShopifyClient::with_transport(
+        STORE,
+        Scripted(|url: &reqwest::Url| {
+            if let Some(c) = collections_page(url, &["a", "b"]) {
+                return Ok(c);
+            }
+            Ok(if url.query() == Some("page=1") {
+                json!({"products": [product()]})
+            } else {
+                json!({"products": []})
+            })
+        }),
+    );
+    let tmp = tempfile::tempdir().unwrap();
+    let path = tmp.path().join("feed.xml");
+    generate(&client, FeedType::Google, &path, "CZK", false, 4).unwrap();
+    let xml = std::fs::read_to_string(path).unwrap();
+    assert_eq!(xml.matches("<g:id>101</g:id>").count(), 1);
+}
+#[test]
+fn a_broken_product_does_not_drop_the_rest_of_its_collection() {
+    let bad = product_with(20, json!({"images": [{"alt": "no src"}]}));
+    let good = product_with(30, json!({}));
+    let client = ShopifyClient::with_transport(
+        STORE,
+        Scripted(move |url: &reqwest::Url| {
+            if let Some(c) = collections_page(url, &["a"]) {
+                return Ok(c);
+            }
+            Ok(if url.query() == Some("page=1") {
+                json!({"products": [bad.clone(), good.clone()]})
+            } else {
+                json!({"products": []})
+            })
+        }),
+    );
+    let tmp = tempfile::tempdir().unwrap();
+    let path = tmp.path().join("feed.xml");
+    generate(&client, FeedType::Google, &path, "CZK", false, 4).unwrap();
+    let xml = std::fs::read_to_string(path).unwrap();
+    assert!(xml.contains("<g:id>300</g:id>") && !xml.contains("<g:id>200</g:id>"));
+}
+fn child<'a>(nodes: &'a [Node], name: &str) -> &'a str {
+    &nodes[0]
+        .children
+        .iter()
+        .find(|n| n.name == name)
+        .unwrap()
+        .text
+}
+#[test]
+fn fractional_prices_keep_their_cents() {
+    let mut p = product();
+    p["variants"][0]["price"] = json!("1299.90");
+    p["variants"][0]["compare_at_price"] = json!("1500");
+    let bing = process_product(FeedType::Bing, STORE, "CZK", &p).unwrap();
+    assert_eq!(child(&bing, "Price"), "1299.90 CZK");
+    assert_eq!(child(&bing, "SalePrice"), "1500 CZK");
+    let zbozi = process_product(FeedType::Zbozi, STORE, "CZK", &p).unwrap();
+    assert_eq!(child(&zbozi, "PRICE_VAT"), "1299.90");
+}
+#[test]
+fn google_gtin_comes_from_the_barcode_not_the_sku() {
+    let mut p = product();
+    p["variants"][0]["barcode"] = json!("");
+    let google = process_product(FeedType::Google, STORE, "CZK", &p).unwrap();
+    assert!(google[0].children.iter().all(|n| n.name != "g:gtin"));
+    assert_eq!(child(&google, "g:mpn"), "SKU-1");
+}
+#[test]
+fn characters_invalid_in_xml_are_dropped() {
+    let mut p = product();
+    p["title"] = json!("Plant\u{b}\u{1} pot");
+    let items = process_product(FeedType::Google, STORE, "CZK", &p).unwrap();
+    let xml = render(FeedType::Google, STORE, &json!({}), items).unwrap();
+    assert!(xml.contains("<g:title>Plant pot</g:title>") || xml.contains("<g:title>Plant pot - "));
+    assert!(!xml.contains('\u{b}') && !xml.contains('\u{1}'));
 }

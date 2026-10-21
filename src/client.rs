@@ -6,7 +6,10 @@
 
 use crate::{log, security, Result};
 use serde_json::Value;
-use std::time::Duration;
+use std::{
+    sync::atomic::{AtomicBool, Ordering},
+    time::Duration,
+};
 
 pub const DEFAULT_USER_AGENT: &str = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1916.47 Safari/537.36";
 pub trait Transport {
@@ -27,6 +30,15 @@ pub fn http_client_builder() -> reqwest::blocking::ClientBuilder {
         .http1_only()
         .no_proxy()
 }
+/// How long a 429 asks the client to wait, capped so a hostile value cannot stall a run.
+pub fn retry_after(headers: &reqwest::header::HeaderMap) -> Duration {
+    let seconds = headers
+        .get(reqwest::header::RETRY_AFTER)
+        .and_then(|v| v.to_str().ok())
+        .and_then(|v| v.trim().parse::<u64>().ok())
+        .unwrap_or(0);
+    Duration::from_secs(seconds.min(60))
+}
 pub struct HttpTransport;
 impl Transport for HttpTransport {
     fn validate(&self, url: &str) -> Result<()> {
@@ -43,9 +55,11 @@ impl Transport for HttpTransport {
             .header("User-Agent", user_agent)
             .header("Accept", "*/*")
             .header("Connection", "keep-alive")
-            .send()?
-            .error_for_status()?;
-        decode_response(response)
+            .send()?;
+        if response.status() == reqwest::StatusCode::TOO_MANY_REQUESTS {
+            std::thread::sleep(retry_after(response.headers()));
+        }
+        decode_response(response.error_for_status()?)
     }
 }
 pub fn decode_response(response: reqwest::blocking::Response) -> Result<Value> {
@@ -129,6 +143,8 @@ pub struct ShopifyClient<T = HttpTransport> {
     pub retry_delay: u64,
     pub user_agent: String,
     pub transport: T,
+    /// Set when a request gave up, so a caller can tell a short result from a complete one.
+    pub failed: AtomicBool,
 }
 impl ShopifyClient<HttpTransport> {
     pub fn new(store: &str) -> Self {
@@ -143,6 +159,7 @@ impl<T: Transport> ShopifyClient<T> {
             retry_delay: 5,
             user_agent: DEFAULT_USER_AGENT.into(),
             transport,
+            failed: AtomicBool::new(false),
         }
     }
     pub fn request(&self, path: &str) -> Option<Value> {
@@ -150,12 +167,14 @@ impl<T: Transport> ShopifyClient<T> {
             Ok(u) => u.to_string(),
             Err(e) => {
                 log("WARNING", format!("Rejected request URL {path:?}: {e}"));
+                self.failed.store(true, Ordering::Relaxed);
                 return None;
             }
         };
         // Reject invalid destinations before entering retry backoff.
         if let Err(e) = self.transport.validate(&url) {
             log("WARNING", format!("Rejected request URL {url:?}: {e}"));
+            self.failed.store(true, Ordering::Relaxed);
             return None;
         }
         for attempt in 0..self.max_retries {
@@ -187,6 +206,7 @@ impl<T: Transport> ShopifyClient<T> {
                 self.max_retries
             ),
         );
+        self.failed.store(true, Ordering::Relaxed);
         None
     }
     pub fn collections(&self) -> Vec<Value> {

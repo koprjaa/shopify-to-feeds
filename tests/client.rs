@@ -189,3 +189,21 @@ fn response_charsets_and_bom_are_decoded_without_live_network() {
         "ok"
     );
 }
+
+#[test]
+fn retry_after_is_read_and_capped() {
+    use reqwest::header::{HeaderMap, HeaderValue, RETRY_AFTER};
+    use shopify_to_feeds::client::retry_after;
+    use std::time::Duration;
+    let mut h = HeaderMap::new();
+    assert_eq!(retry_after(&h), Duration::ZERO);
+    h.insert(RETRY_AFTER, HeaderValue::from_static("7"));
+    assert_eq!(retry_after(&h), Duration::from_secs(7));
+    h.insert(RETRY_AFTER, HeaderValue::from_static("86400"));
+    assert_eq!(retry_after(&h), Duration::from_secs(60));
+    h.insert(
+        RETRY_AFTER,
+        HeaderValue::from_static("Wed, 21 Oct 2026 07:28:00 GMT"),
+    );
+    assert_eq!(retry_after(&h), Duration::ZERO);
+}

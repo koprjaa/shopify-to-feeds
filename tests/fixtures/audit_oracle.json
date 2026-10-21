@@ -175,7 +175,7 @@
           "condition": "new",
           "google_product_category": "Plants, Pots",
           "product_type": "Home/Garden",
-          "gtin": "SKU-1",
+          "gtin": "123456",
           "mpn": "SKU-1"
         },
         {
@@ -235,7 +235,7 @@
           "condition": "new",
           "google_product_category": "Plants, Pots",
           "product_type": "Home/Garden",
-          "gtin": "SKU-1",
+          "gtin": "123456",
           "mpn": "SKU-1"
         },
         {
@@ -276,7 +276,7 @@
           "Title": "Plant & pot 12 cm",
           "Link": "https://shop.myshopify.com/products/plant-pot-extra?variant=101",
           "ImageLink": "main",
-          "Price": "19 CZK",
+          "Price": "19.99 CZK",
           "Brand": "Example & Co",
           "MPN": "SKU-1",
           "Availability": "In Stock",
@@ -284,7 +284,7 @@
           "Description": "Příliš green &amp; nice.",
           "ProductType": "Home/Garden",
           "ItemGroupID": "10",
-          "SalePrice": "25 CZK",
+          "SalePrice": "25.50 CZK",
           "ShippingWeight": "0.35 kg",
           "GTIN": "123456"
         },
@@ -293,7 +293,7 @@
           "Title": "Plant & pot 12 cm - Large",
           "Link": "https://shop.myshopify.com/products/plant-pot-extra?variant=102",
           "ImageLink": "main",
-          "Price": "29 CZK",
+          "Price": "29.95 CZK",
           "Brand": "Example & Co",
           "MPN": "",
           "Availability": "Out of Stock",
@@ -326,7 +326,7 @@
           "PRODUCTNAME": "Plant & pot 12 cm",
           "DESCRIPTION": "Příliš green &amp; nice.",
           "URL": "https://shop.myshopify.com/products/plant-pot-extra?variant=101",
-          "PRICE_VAT": "19",
+          "PRICE_VAT": "19.99",
           "DELIVERY_DATE": "3",
           "IMGURL": "main",
           "ITEM_ID": "101",
@@ -343,13 +343,13 @@
           "CUSTOM_LABEL_0": "Shopify",
           "CUSTOM_LABEL_1": "Home/Garden",
           "CUSTOM_LABEL_2": "Plants | Pots",
-          "PRICE_BEFORE_DISCOUNT": "25"
+          "PRICE_BEFORE_DISCOUNT": "25.50"
         },
         {
           "PRODUCTNAME": "Plant & pot 12 cm - Large",
           "DESCRIPTION": "Příliš green &amp; nice.",
           "URL": "https://shop.myshopify.com/products/plant-pot-extra?variant=102",
-          "PRICE_VAT": "29",
+          "PRICE_VAT": "29.95",
           "DELIVERY_DATE": "3",
           "IMGURL": "main",
           "ITEM_ID": "102",
@@ -389,7 +389,7 @@
           "condition": "new",
           "google_product_category": "Plants, Pots",
           "product_type": "Home/Garden",
-          "gtin": "SKU-1",
+          "gtin": "123456",
           "mpn": "SKU-1"
         },
         {
@@ -420,7 +420,7 @@
           "Title": "Plant & pot 12 cm",
           "Link": "https://shop.myshopify.com/products/plant-pot-extra?variant=101",
           "ImageLink": "https://cdn.shopify.com/main.jpg",
-          "Price": "19 CZK",
+          "Price": "19.99 CZK",
           "Brand": "Example & Co",
           "MPN": "SKU-1",
           "Availability": "In Stock",
@@ -428,7 +428,7 @@
           "Description": "[1, None]",
           "ProductType": "Home/Garden",
           "ItemGroupID": "10",
-          "SalePrice": "25 CZK",
+          "SalePrice": "25.50 CZK",
           "ShippingWeight": "0.35 kg",
           "GTIN": "123456"
         },
@@ -437,7 +437,7 @@
           "Title": "Plant & pot 12 cm - Large",
           "Link": "https://shop.myshopify.com/products/plant-pot-extra?variant=102",
           "ImageLink": "https://cdn.shopify.com/main.jpg",
-          "Price": "29 CZK",
+          "Price": "29.95 CZK",
           "Brand": "Example & Co",
           "MPN": "",
           "Availability": "Out of Stock",
@@ -460,7 +460,7 @@
           "PRODUCTNAME": "Plant & pot 12 cm",
           "DESCRIPTION": "[1, None]",
           "URL": "https://shop.myshopify.com/products/plant-pot-extra?variant=101",
-          "PRICE_VAT": "19",
+          "PRICE_VAT": "19.99",
           "DELIVERY_DATE": "3",
           "IMGURL": "https://cdn.shopify.com/main.jpg",
           "ITEM_ID": "101",
@@ -477,13 +477,13 @@
           "CUSTOM_LABEL_0": "Shopify",
           "CUSTOM_LABEL_1": "Home/Garden",
           "CUSTOM_LABEL_2": "Plants | Pots",
-          "PRICE_BEFORE_DISCOUNT": "25"
+          "PRICE_BEFORE_DISCOUNT": "25.50"
         },
         {
           "PRODUCTNAME": "Plant & pot 12 cm - Large",
           "DESCRIPTION": "[1, None]",
           "URL": "https://shop.myshopify.com/products/plant-pot-extra?variant=102",
-          "PRICE_VAT": "29",
+          "PRICE_VAT": "29.95",
           "DELIVERY_DATE": "3",
           "IMGURL": "https://cdn.shopify.com/main.jpg",
           "ITEM_ID": "102",
@@ -520,7 +520,7 @@
           "condition": "new",
           "google_product_category": "Plants, Pots",
           "product_type": "Home/Garden",
-          "gtin": "SKU-1",
+          "gtin": "123456",
           "mpn": "SKU-1"
         },
         {
@@ -548,7 +548,7 @@
           "Title": "Plant & pot 12 cm",
           "Link": "https://shop.myshopify.com/products/a//c?variant=101",
           "ImageLink": "https://cdn.shopify.com/main.jpg",
-          "Price": "19 CZK",
+          "Price": "19.99 CZK",
           "Brand": "Example & Co",
           "MPN": "SKU-1",
           "Availability": "In Stock",
@@ -556,7 +556,7 @@
           "Description": "Příliš green &amp; nice.",
           "ProductType": "Home/Garden",
           "ItemGroupID": "10",
-          "SalePrice": "25 CZK",
+          "SalePrice": "25.50 CZK",
           "ShippingWeight": "0.35 kg",
           "GTIN": "123456"
         },
@@ -565,7 +565,7 @@
           "Title": "Plant & pot 12 cm - Large",
           "Link": "https://shop.myshopify.com/products/a//c?variant=102",
           "ImageLink": "https://cdn.shopify.com/main.jpg",
-          "Price": "29 CZK",
+          "Price": "29.95 CZK",
           "Brand": "Example & Co",
           "MPN": "",
           "Availability": "Out of Stock",
@@ -585,7 +585,7 @@
           "PRODUCTNAME": "Plant & pot 12 cm",
           "DESCRIPTION": "Příliš green &amp; nice.",
           "URL": "https://shop.myshopify.com/products/a//c?variant=101",
-          "PRICE_VAT": "19",
+          "PRICE_VAT": "19.99",
           "DELIVERY_DATE": "3",
           "IMGURL": "https://cdn.shopify.com/main.jpg",
           "ITEM_ID": "101",
@@ -602,13 +602,13 @@
           "CUSTOM_LABEL_0": "Shopify",
           "CUSTOM_LABEL_1": "Home/Garden",
           "CUSTOM_LABEL_2": "Plants | Pots",
-          "PRICE_BEFORE_DISCOUNT": "25"
+          "PRICE_BEFORE_DISCOUNT": "25.50"
         },
         {
           "PRODUCTNAME": "Plant & pot 12 cm - Large",
           "DESCRIPTION": "Příliš green &amp; nice.",
           "URL": "https://shop.myshopify.com/products/a//c?variant=102",
-          "PRICE_VAT": "29",
+          "PRICE_VAT": "29.95",
           "DELIVERY_DATE": "3",
           "IMGURL": "https://cdn.shopify.com/main.jpg",
           "ITEM_ID": "102",
@@ -645,7 +645,7 @@
           "condition": "new",
           "google_product_category": "Plants, Pots",
           "product_type": "Home/Garden",
-          "gtin": "SKU-1",
+          "gtin": "123456",
           "mpn": "SKU-1"
         },
         {
@@ -673,7 +673,7 @@
           "Title": "Plant & pot 12 cm",
           "Link": "https://shop.myshopify.com/products/abc?variant=101",
           "ImageLink": "https://cdn.shopify.com/main.jpg",
-          "Price": "19 CZK",
+          "Price": "19.99 CZK",
           "Brand": "Example & Co",
           "MPN": "SKU-1",
           "Availability": "In Stock",
@@ -681,7 +681,7 @@
           "Description": "Příliš green &amp; nice.",
           "ProductType": "Home/Garden",
           "ItemGroupID": "10",
-          "SalePrice": "25 CZK",
+          "SalePrice": "25.50 CZK",
           "ShippingWeight": "0.35 kg",
           "GTIN": "123456"
         },
@@ -690,7 +690,7 @@
           "Title": "Plant & pot 12 cm - Large",
           "Link": "https://shop.myshopify.com/products/abc?variant=102",
           "ImageLink": "https://cdn.shopify.com/main.jpg",
-          "Price": "29 CZK",
+          "Price": "29.95 CZK",
           "Brand": "Example & Co",
           "MPN": "",
           "Availability": "Out of Stock",
@@ -710,7 +710,7 @@
           "PRODUCTNAME": "Plant & pot 12 cm",
           "DESCRIPTION": "Příliš green &amp; nice.",
           "URL": "https://shop.myshopify.com/products/abc?variant=101",
-          "PRICE_VAT": "19",
+          "PRICE_VAT": "19.99",
           "DELIVERY_DATE": "3",
           "IMGURL": "https://cdn.shopify.com/main.jpg",
           "ITEM_ID": "101",
@@ -727,13 +727,13 @@
           "CUSTOM_LABEL_0": "Shopify",
           "CUSTOM_LABEL_1": "Home/Garden",
           "CUSTOM_LABEL_2": "Plants | Pots",
-          "PRICE_BEFORE_DISCOUNT": "25"
+          "PRICE_BEFORE_DISCOUNT": "25.50"
         },
         {
           "PRODUCTNAME": "Plant & pot 12 cm - Large",
           "DESCRIPTION": "Příliš green &amp; nice.",
           "URL": "https://shop.myshopify.com/products/abc?variant=102",
-          "PRICE_VAT": "29",
+          "PRICE_VAT": "29.95",
           "DELIVERY_DATE": "3",
           "IMGURL": "https://cdn.shopify.com/main.jpg",
           "ITEM_ID": "102",
@@ -770,7 +770,7 @@
           "condition": "new",
           "google_product_category": "Plants, Pots",
           "product_type": "Home/Garden",
-          "gtin": "SKU-1",
+          "gtin": "123456",
           "mpn": "SKU-1"
         },
         {
@@ -798,7 +798,7 @@
           "Title": "Plant & pot 12 cm",
           "Link": "https://shop.myshopify.com/products/plant-pot-extra?variant=101",
           "ImageLink": "https://cdn.shopify.com/main.jpg",
-          "Price": "1234 CZK",
+          "Price": "1234.50 CZK",
           "Brand": "Example & Co",
           "MPN": "SKU-1",
           "Availability": "In Stock",
@@ -806,7 +806,7 @@
           "Description": "Příliš green &amp; nice.",
           "ProductType": "Home/Garden",
           "ItemGroupID": "10",
-          "SalePrice": "25 CZK",
+          "SalePrice": "25.50 CZK",
           "ShippingWeight": "0.35 kg",
           "GTIN": "123456"
         },
@@ -815,7 +815,7 @@
           "Title": "Plant & pot 12 cm - Large",
           "Link": "https://shop.myshopify.com/products/plant-pot-extra?variant=102",
           "ImageLink": "https://cdn.shopify.com/main.jpg",
-          "Price": "29 CZK",
+          "Price": "29.95 CZK",
           "Brand": "Example & Co",
           "MPN": "",
           "Availability": "Out of Stock",
@@ -835,7 +835,7 @@
           "PRODUCTNAME": "Plant & pot 12 cm",
           "DESCRIPTION": "Příliš green &amp; nice.",
           "URL": "https://shop.myshopify.com/products/plant-pot-extra?variant=101",
-          "PRICE_VAT": "1234",
+          "PRICE_VAT": "1234.50",
           "DELIVERY_DATE": "3",
           "IMGURL": "https://cdn.shopify.com/main.jpg",
           "ITEM_ID": "101",
@@ -852,13 +852,13 @@
           "CUSTOM_LABEL_0": "Shopify",
           "CUSTOM_LABEL_1": "Home/Garden",
           "CUSTOM_LABEL_2": "Plants | Pots",
-          "PRICE_BEFORE_DISCOUNT": "25"
+          "PRICE_BEFORE_DISCOUNT": "25.50"
         },
         {
           "PRODUCTNAME": "Plant & pot 12 cm - Large",
           "DESCRIPTION": "Příliš green &amp; nice.",
           "URL": "https://shop.myshopify.com/products/plant-pot-extra?variant=102",
-          "PRICE_VAT": "29",
+          "PRICE_VAT": "29.95",
           "DELIVERY_DATE": "3",
           "IMGURL": "https://cdn.shopify.com/main.jpg",
           "ITEM_ID": "102",
@@ -895,7 +895,7 @@
           "condition": "new",
           "google_product_category": "Plants, Pots",
           "product_type": "Home/Garden",
-          "gtin": "SKU-1",
+          "gtin": "123456",
           "mpn": "SKU-1"
         },
         {
@@ -923,7 +923,7 @@
           "Title": "Plant & pot 12 cm",
           "Link": "https://shop.myshopify.com/products/plant-pot-extra?variant=101",
           "ImageLink": "https://cdn.shopify.com/main.jpg",
-          "Price": "12 CZK",
+          "Price": "12.50 CZK",
           "Brand": "Example & Co",
           "MPN": "SKU-1",
           "Availability": "In Stock",
@@ -931,7 +931,7 @@
           "Description": "Příliš green &amp; nice.",
           "ProductType": "Home/Garden",
           "ItemGroupID": "10",
-          "SalePrice": "25 CZK",
+          "SalePrice": "25.50 CZK",
           "ShippingWeight": "0.35 kg",
           "GTIN": "123456"
         },
@@ -940,7 +940,7 @@
           "Title": "Plant & pot 12 cm - Large",
           "Link": "https://shop.myshopify.com/products/plant-pot-extra?variant=102",
           "ImageLink": "https://cdn.shopify.com/main.jpg",
-          "Price": "29 CZK",
+          "Price": "29.95 CZK",
           "Brand": "Example & Co",
           "MPN": "",
           "Availability": "Out of Stock",
@@ -960,7 +960,7 @@
           "PRODUCTNAME": "Plant & pot 12 cm",
           "DESCRIPTION": "Příliš green &amp; nice.",
           "URL": "https://shop.myshopify.com/products/plant-pot-extra?variant=101",
-          "PRICE_VAT": "12",
+          "PRICE_VAT": "12.50",
           "DELIVERY_DATE": "3",
           "IMGURL": "https://cdn.shopify.com/main.jpg",
           "ITEM_ID": "101",
@@ -977,13 +977,13 @@
           "CUSTOM_LABEL_0": "Shopify",
           "CUSTOM_LABEL_1": "Home/Garden",
           "CUSTOM_LABEL_2": "Plants | Pots",
-          "PRICE_BEFORE_DISCOUNT": "25"
+          "PRICE_BEFORE_DISCOUNT": "25.50"
         },
         {
           "PRODUCTNAME": "Plant & pot 12 cm - Large",
           "DESCRIPTION": "Příliš green &amp; nice.",
           "URL": "https://shop.myshopify.com/products/plant-pot-extra?variant=102",
-          "PRICE_VAT": "29",
+          "PRICE_VAT": "29.95",
           "DELIVERY_DATE": "3",
           "IMGURL": "https://cdn.shopify.com/main.jpg",
           "ITEM_ID": "102",
@@ -1043,7 +1043,7 @@
           "brand": "Example & Co",
           "condition": "new",
           "google_product_category": "Plants, Pots",
-          "gtin": "SKU-1",
+          "gtin": "123456",
           "mpn": "SKU-1"
         },
         {
@@ -1070,7 +1070,7 @@
           "Title": "Plant & pot 12 cm",
           "Link": "https://shop.myshopify.com/products/plant-pot-extra?variant=101",
           "ImageLink": "https://cdn.shopify.com/main.jpg",
-          "Price": "19 CZK",
+          "Price": "19.99 CZK",
           "Brand": "Example & Co",
           "MPN": "SKU-1",
           "Availability": "In Stock",
@@ -1078,7 +1078,7 @@
           "Description": "Příliš green &amp; nice.",
           "ProductType": "None",
           "ItemGroupID": "10",
-          "SalePrice": "25 CZK",
+          "SalePrice": "25.50 CZK",
           "ShippingWeight": "0.35 kg",
           "GTIN": "123456"
         },
@@ -1087,7 +1087,7 @@
           "Title": "Plant & pot 12 cm - Large",
           "Link": "https://shop.myshopify.com/products/plant-pot-extra?variant=102",
           "ImageLink": "https://cdn.shopify.com/main.jpg",
-          "Price": "29 CZK",
+          "Price": "29.95 CZK",
           "Brand": "Example & Co",
           "MPN": "",
           "Availability": "Out of Stock",

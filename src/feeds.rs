@@ -11,7 +11,12 @@ use crate::{
 };
 use regex::Regex;
 use serde_json::Value;
-use std::{io::Write, path::Path, sync::LazyLock};
+use std::{
+    collections::HashSet,
+    io::Write,
+    path::Path,
+    sync::{atomic::Ordering, LazyLock},
+};
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, clap::ValueEnum)]
 pub enum FeedType {
@@ -92,7 +97,13 @@ impl Node {
     }
 }
 fn escape(s: &str) -> String {
-    s.replace('&', "&amp;")
+    // Characters outside the XML 1.0 Char production make a parser reject the whole feed.
+    s.chars()
+        .filter(|c| {
+            matches!(c, '\t' | '\n' | '\r' | '\u{20}'..='\u{d7ff}' | '\u{e000}'..='\u{fffd}' | '\u{10000}'..='\u{10ffff}')
+        })
+        .collect::<String>()
+        .replace('&', "&amp;")
         .replace('<', "&lt;")
         .replace('>', "&gt;")
 }
@@ -108,10 +119,14 @@ fn integer(v: &Value) -> Result<String> {
     let n = number(v)
         .filter(|n| n.is_finite())
         .ok_or("Invalid numeric price")?;
-    Ok(if n.trunc() == 0.0 {
+    // Whole prices stay integers; a fractional price keeps its cents instead of being cut off.
+    let rounded = (n * 100.0).round() / 100.0;
+    Ok(if rounded == 0.0 {
         "0".into()
+    } else if rounded.fract() == 0.0 {
+        format!("{rounded:.0}")
     } else {
-        format!("{:.0}", n.trunc())
+        format!("{rounded:.2}")
     })
 }
 fn add(nodes: &mut Vec<Node>, key: &str, value: impl Into<String>) {
@@ -283,8 +298,11 @@ pub fn process_product(
                         "Home & Garden".into()
                     };
                     add(&mut n, "g:google_product_category", category);
+                    // A SKU is not a GTIN; Merchant Center rejects invalid ones.
+                    if truth(&v["barcode"]) {
+                        add(&mut n, "g:gtin", text(&v["barcode"]));
+                    }
                     if truth(&v["sku"]) {
-                        add(&mut n, "g:gtin", text(&v["sku"]));
                         add(&mut n, "g:mpn", text(&v["sku"]));
                     }
                     if truth(&p["product_type"]) {
@@ -588,6 +606,7 @@ pub fn generate<T: Transport>(
         "INFO",
         format!("Starting {label} feed generation for {store}"),
     );
+    client.failed.store(false, Ordering::Relaxed);
     let result = (|| -> Result<()> {
         let mut items = vec![];
         if kind == FeedType::Bing {
@@ -595,6 +614,8 @@ pub fn generate<T: Transport>(
                 items.extend(process_product(kind, store, currency, &p)?);
             }
         } else {
+            // A product listed in several collections must appear once.
+            let mut seen = HashSet::new();
             for c in client.collections() {
                 let h = required(&c, "handle")?;
                 log(
@@ -602,15 +623,25 @@ pub fn generate<T: Transport>(
                     format!("Processing collection: {}", required(&c, "title")?),
                 );
                 for p in client.products(Some(&h)) {
+                    if !p["id"].is_null() && !seen.insert(text(&p["id"])) {
+                        continue;
+                    }
                     match process_product(kind, store, currency, &p) {
                         Ok(v) => items.extend(v),
-                        Err(e) => {
-                            log("ERROR", format!("Error processing collection {h}: {e}"));
-                            break;
-                        }
+                        // Skip only the broken product, not the rest of the collection.
+                        Err(e) => log(
+                            "ERROR",
+                            format!(
+                                "Error processing product {} in {h}: {e}",
+                                get(&p, "id", "unknown")
+                            ),
+                        ),
                     }
                 }
             }
+        }
+        if client.failed.load(Ordering::Relaxed) {
+            return Err("Store requests failed, so the catalogue is incomplete. Refusing to publish a partial feed.".into());
         }
         log(
             "INFO",
