@@ -7,6 +7,7 @@
 use crate::{log, security, Result};
 use std::{
     collections::{BTreeSet, HashMap},
+    io::Read,
     path::Path,
     sync::{
         atomic::{AtomicUsize, Ordering},
@@ -14,6 +15,7 @@ use std::{
     },
 };
 pub const MAX_IMAGE_WORKERS: usize = 64;
+pub const MAX_IMAGE_BYTES: u64 = 50 * 1024 * 1024;
 pub const IMAGE_USER_AGENT: &str = "python-requests/2.33.0";
 pub fn image_filename(url: &str) -> String {
     let base = reqwest::Url::parse(url)
@@ -47,10 +49,17 @@ impl ImageTransport for HttpImages {
             .header("Connection", "keep-alive")
             .send()?
             .error_for_status()?;
-        let mut bytes = Vec::new();
-        std::io::Read::read_to_end(&mut response, &mut bytes)?;
-        Ok(bytes)
+        read_limited(&mut response, MAX_IMAGE_BYTES)
     }
+}
+/// Reads at most `max` bytes and fails on anything longer, so one huge response cannot fill memory.
+pub fn read_limited(reader: &mut impl std::io::Read, max: u64) -> Result<Vec<u8>> {
+    let mut bytes = Vec::new();
+    reader.take(max + 1).read_to_end(&mut bytes)?;
+    if bytes.len() as u64 > max {
+        return Err(format!("Image exceeds {max} bytes").into());
+    }
+    Ok(bytes)
 }
 pub fn download_image(url: &str, folder: &Path, filename: &str) -> Result<()> {
     download_image_with(&HttpImages, url, folder, filename)

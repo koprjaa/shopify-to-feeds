@@ -158,3 +158,10 @@ fn excessive_workers_are_bounded() {
     );
     assert!(transport.peak.load(Ordering::SeqCst) <= MAX_IMAGE_WORKERS);
 }
+
+#[test]
+fn an_oversized_image_response_is_rejected() {
+    use shopify_to_feeds::images::read_limited;
+    assert_eq!(read_limited(&mut &b"abcd"[..], 4).unwrap(), b"abcd");
+    assert!(read_limited(&mut &b"abcde"[..], 4).is_err());
+}
