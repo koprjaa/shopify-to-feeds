@@ -2,8 +2,7 @@
 // File: src/bin/smoke.rs
 // Description: Manual live-store smoke run for all three feed formats.
 // Author: Jan Alexandr Kopřiva
-// License: MIT
-
+// License: AGPL-3.0-or-later
 use clap::Parser;
 use shopify_to_feeds::{
     client::ShopifyClient,

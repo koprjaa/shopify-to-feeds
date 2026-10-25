@@ -2,8 +2,7 @@
 // File: tests/security.rs
 // Description: Offline equivalents of authentication, SSRF and file-serving tests.
 // Author: Jan Alexandr Kopřiva
-// License: MIT
-
+// License: AGPL-3.0-or-later
 use shopify_to_feeds::security::*;
 fn validate(s: &str, extra: &str, image: bool) -> shopify_to_feeds::Result<String> {
     validate_with(s, extra, image, true, |_, port| {

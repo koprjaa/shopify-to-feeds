@@ -2,8 +2,7 @@
 // File: src/client.rs
 // Description: Validated Shopify JSON pagination and retry policy.
 // Author: Jan Alexandr Kopřiva
-// License: MIT
-
+// License: AGPL-3.0-or-later
 use crate::{log, security, Result};
 use serde_json::Value;
 use std::{

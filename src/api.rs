@@ -2,8 +2,7 @@
 // File: src/api.rs
 // Description: HTTP service, bounded background jobs and feed-state cache.
 // Author: Jan Alexandr Kopřiva
-// License: MIT
-
+// License: AGPL-3.0-or-later
 use crate::{
     client::ShopifyClient,
     feeds::{self, FeedType},

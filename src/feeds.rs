@@ -2,8 +2,7 @@
 // File: src/feeds.rs
 // Description: Ordered merchant XML mappings and guarded file publication.
 // Author: Jan Alexandr Kopřiva
-// License: MIT
-
+// License: AGPL-3.0-or-later
 use crate::{
     client::{ShopifyClient, Transport},
     helpers::{fixed, format_price, number, remove_html_tags, text, truth},

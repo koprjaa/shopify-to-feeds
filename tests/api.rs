@@ -2,8 +2,7 @@
 // File: tests/api.rs
 // Description: HTTP contracts, background work, concurrency and cache eviction.
 // Author: Jan Alexandr Kopřiva
-// License: MIT
-
+// License: AGPL-3.0-or-later
 use axum::{
     body::{to_bytes, Body},
     http::{Request, StatusCode},

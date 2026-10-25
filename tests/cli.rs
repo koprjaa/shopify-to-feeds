@@ -2,8 +2,7 @@
 // File: tests/cli.rs
 // Description: Installed binary argument and exit-code contracts.
 // Author: Jan Alexandr Kopřiva
-// License: MIT
-
+// License: AGPL-3.0-or-later
 use std::process::Command;
 #[test]
 fn smoke_help_and_missing_argument() {

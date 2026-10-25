@@ -3,7 +3,7 @@ name = "shopify-to-feeds"
 version = "1.0.0"
 edition = "2021"
 authors = ["Jan Alexandr Kopřiva"]
-license = "MIT"
+license = "AGPL-3.0-or-later"
 description = "Generates Google, Bing and Zbozi.cz product feeds from a Shopify store."
 repository = "https://github.com/koprjaa/shopify-to-feeds"
 

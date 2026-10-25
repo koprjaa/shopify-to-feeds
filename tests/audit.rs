@@ -2,8 +2,7 @@
 // File: tests/audit.rs
 // Description: Differential regressions captured from the original Python implementation.
 // Author: Jan Alexandr Kopřiva
-// License: MIT
-
+// License: AGPL-3.0-or-later
 use serde_json::{json, Value};
 use shopify_to_feeds::{
     feeds::{process_product, FeedType},

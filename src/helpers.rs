@@ -2,8 +2,7 @@
 // File: src/helpers.rs
 // Description: Merchant description, price and weight formatting.
 // Author: Jan Alexandr Kopřiva
-// License: MIT
-
+// License: AGPL-3.0-or-later
 use regex::Regex;
 use serde_json::Value;
 use std::sync::LazyLock;

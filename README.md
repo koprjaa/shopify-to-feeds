@@ -3,7 +3,7 @@
 Generates Google, Bing and Zbozi.cz product feeds from a Shopify store.
 
 [![CI](https://github.com/koprjaa/shopify-to-feeds/actions/workflows/ci.yml/badge.svg)](https://github.com/koprjaa/shopify-to-feeds/actions/workflows/ci.yml)
-[![License: MIT](https://img.shields.io/badge/license-MIT-A31F34?style=flat-square)](LICENSE)
+[![License: AGPL-3.0](https://img.shields.io/badge/license-AGPL--3.0-A31F34?style=flat-square)](LICENSE)
 
 Export XML for Google Merchant Center, Bing Shopping and Zboží.cz through an HTTP service or a command that writes all three formats. A Rust library is also available.
 
@@ -48,4 +48,4 @@ This writes `google_feed.xml`, `bing_feed.xml` and `zbozi_feed.xml`. Without `--
 
 ## License
 
-[MIT](LICENSE)
+[AGPL-3.0-or-later](LICENSE)

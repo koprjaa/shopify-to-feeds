@@ -2,8 +2,7 @@
 // File: src/security.rs
 // Description: API authentication, host allowlists and address validation.
 // Author: Jan Alexandr Kopřiva
-// License: MIT
-
+// License: AGPL-3.0-or-later
 use reqwest::Url;
 use std::{
     net::{IpAddr, SocketAddr, ToSocketAddrs},

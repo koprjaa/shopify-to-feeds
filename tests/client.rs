@@ -2,8 +2,7 @@
 // File: tests/client.rs
 // Description: Local HTTP mocks for headers, pagination, retry and timeout settings.
 // Author: Jan Alexandr Kopřiva
-// License: MIT
-
+// License: AGPL-3.0-or-later
 use serde_json::Value;
 use shopify_to_feeds::{
     client::{ShopifyClient, Transport, DEFAULT_USER_AGENT},
